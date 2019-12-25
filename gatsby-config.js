@@ -33,13 +33,6 @@ module.exports = {
     {
       resolve: `gatsby-plugin-polished`,
     },
-    {
-      resolve: `gatsby-plugin-google-fonts`,
-      options: {
-        fonts: [`IBM Plex Sans\:400,400i,700`, `IBM Plex Mono\:400,700`],
-        display: "swap",
-      },
-    },
     // this (optional) plugin enables Progressive Web App + Offline functionality
     // To learn more, visit: https://gatsby.dev/offline
     // `gatsby-plugin-offline`,
