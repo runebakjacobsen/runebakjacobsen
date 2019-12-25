@@ -58,8 +58,7 @@ const GlobalStyle = createGlobalStyle`
 
     small, .text_small {font-size: 0.8em;}
     
-    
-    main {
+    main, .container {
         margin: 0 auto;
         ${above.sm`
             width: 540px;
@@ -74,8 +73,6 @@ const GlobalStyle = createGlobalStyle`
             width: 1140px;
         `}
     }
-
- 
 `
 
 export default GlobalStyle
