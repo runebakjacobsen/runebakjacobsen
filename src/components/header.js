@@ -2,9 +2,12 @@ import { Link } from "gatsby"
 import PropTypes from "prop-types"
 import React from "react"
 import styled from "styled-components"
+import MobileNav from "./mobile-nav"
+import { above } from "../utilities/breakpoints"
 
 const Header = ({ siteTitle }) => (
   <HeaderWrapper>
+    <MobileNav />
     <nav className="container">
       <span>
         <Link to="/">{siteTitle}</Link>
@@ -33,10 +36,13 @@ const HeaderWrapper = styled.header`
   margin-bottom: 1em;
 
   nav {
-    display: flex;
+    display: none;
     div {
       margin-left: auto;
     }
+    ${above.sm`
+    display: flex;  
+    `}
   }
 
   a {
@@ -47,6 +53,7 @@ const HeaderWrapper = styled.header`
 
   span a {
     margin-left: 0;
+    font-weight: 500;
   }
 `
 
