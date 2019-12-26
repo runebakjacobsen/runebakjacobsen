@@ -60,14 +60,15 @@ const GlobalStyle = createGlobalStyle`
     
     main, .container {
         margin: 0 auto;
+        padding: 0 1em;
         ${above.sm`
             width: 540px;
         `}
         ${above.md`
-        width: 720px;
+            width: 720px;
         `}
         ${above.lg`
-        width: 960px;
+            width: 960px;
         `}
         ${above.xl`
             width: 1140px;
