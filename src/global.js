@@ -14,6 +14,7 @@ const GlobalStyle = createGlobalStyle`
     html {
         box-sizing: border-box;
         font-size: 16px;
+        height:100%;
     }
     
     *, *:before, *:after {
@@ -23,6 +24,7 @@ const GlobalStyle = createGlobalStyle`
     body {
         margin: 0;
         font-weight: 400;
+        height:100%;
         line-height: 1.45;
         color: #1b1b1b;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
@@ -30,6 +32,12 @@ const GlobalStyle = createGlobalStyle`
           sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+    }
+    
+    div#___gatsby, div#gatsby-focus-wrapper {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
     }
 
     p {margin-bottom: 1.25em; }
