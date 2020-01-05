@@ -13,6 +13,13 @@ export const query = graphql`
           frontmatter {
             title
             date
+            featuredImage {
+              childImageSharp {
+                fluid(maxWidth: 800) {
+                  ...GatsbyImageSharpFluid
+                }
+              }
+            }
           }
         }
       }
