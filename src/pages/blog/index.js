@@ -12,7 +12,7 @@ export const query = graphql`
           excerpt
           frontmatter {
             title
-            date
+            date(formatString: "MMMM DD, YYYY")
             featuredImage {
               childImageSharp {
                 fluid(maxWidth: 800) {
@@ -35,7 +35,6 @@ const BlogPage = ({ data }) => (
     {data.allMdx.edges.map(edge => (
       <PostPreview post={edge.node} />
     ))}
-    {JSON.stringify(data.allMdx.edges)}
   </Layout>
 )
 
