@@ -5,6 +5,7 @@ import { above } from "../utilities/breakpoints"
 import { Link } from "gatsby"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { lighten } from "polished"
+
 const PostPreview = ({ post }) => {
   const { title, date, featuredImage, path } = post.frontmatter
   return (

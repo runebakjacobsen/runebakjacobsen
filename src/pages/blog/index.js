@@ -29,10 +29,9 @@ export const query = graphql`
 `
 
 const BlogPage = ({ data }) => (
-  <Layout>
+  <Layout hero={{ title: "Blog" }}>
     <SEO title="Blog" />
-    <h1>Posts</h1>
-    <p>Here is the posts</p>
+    <h1>Recent Posts</h1>
     {data.allMdx.edges.map(edge => (
       <PostPreview post={edge.node} />
     ))}
