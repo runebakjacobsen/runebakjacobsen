@@ -4,6 +4,7 @@ import React from "react"
 import styled from "styled-components"
 import MobileNav from "./mobile-nav"
 import { above } from "../utilities/breakpoints"
+import Memoji from "./memoji"
 
 const Header = ({ siteTitle }) => (
   <HeaderWrapper>
