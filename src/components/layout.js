@@ -17,9 +17,18 @@ import {
   faGithubSquare,
   faTwitterSquare,
 } from "@fortawesome/free-brands-svg-icons"
-import { faEnvelopeSquare } from "@fortawesome/free-solid-svg-icons"
+import {
+  faEnvelopeSquare,
+  faArrowRight,
+} from "@fortawesome/free-solid-svg-icons"
 
-library.add(fab, faGithubSquare, faTwitterSquare, faEnvelopeSquare)
+library.add(
+  fab,
+  faGithubSquare,
+  faTwitterSquare,
+  faEnvelopeSquare,
+  faArrowRight
+)
 
 const Layout = ({ children }) => {
   const data = useStaticQuery(graphql`

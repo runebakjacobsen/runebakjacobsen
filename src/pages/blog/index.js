@@ -13,6 +13,7 @@ export const query = graphql`
           frontmatter {
             title
             date(formatString: "MMMM DD, YYYY")
+            path
             featuredImage {
               childImageSharp {
                 fluid(maxWidth: 800) {

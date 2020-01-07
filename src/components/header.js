@@ -33,7 +33,7 @@ const HeaderWrapper = styled.header`
   background: #2c5282;
   padding: 1em;
   font-size: 1.125em;
-  margin-bottom: 1em;
+  margin-bottom: 2em;
 
   nav {
     display: none;
