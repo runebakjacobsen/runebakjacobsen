@@ -42,7 +42,6 @@ const GlobalStyle = createGlobalStyle`
 
     p {margin-bottom: 1.15rem;}
 
-
     h1, h2, h3, h4, h5 {
     margin: 2.75rem 0 1.05rem;
     font-weight: 400;
@@ -83,6 +82,10 @@ const GlobalStyle = createGlobalStyle`
 
     small, .text_small {font-size: 0.8em;}
     
+    b {
+        font-weight: 700;
+    }
+
     main, .container {
         margin: 0 auto;
         padding: 0 1em;
