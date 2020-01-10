@@ -8,7 +8,7 @@ import { above } from "../utilities/breakpoints"
 const Header = ({ siteTitle }) => (
   <HeaderWrapper>
     <MobileNav />
-    <nav className="container">
+    <nav>
       <span>
         <Link to="/">{siteTitle}</Link>
       </span>

@@ -35,12 +35,6 @@ const IndexPage = ({ data }) => (
     <SEO title="Home" />
     <Welcome />
     <section>
-      <p>
-        This is my personal website, and eventually there will be some blog
-        posts and other fun stuff here. Stay tuned!
-      </p>
-    </section>
-    <section>
       <h3>
         <Highlight>Recent Posts.</Highlight>
       </h3>

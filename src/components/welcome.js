@@ -1,7 +1,4 @@
 import React from "react"
-import Memoji from "./memoji"
-import styled from "styled-components"
-import { above } from "../utilities/breakpoints"
 import { Highlight } from "./highlight"
 
 const Welcome = () => {
@@ -17,6 +14,10 @@ const Welcome = () => {
           <i>Rune</i>
         </b>{" "}
         and I ❤️ programming.
+      </p>
+      <p>
+        This is my personal website, and eventually there will be some blog
+        posts and other fun stuff here. Stay tuned!
       </p>
     </section>
   )

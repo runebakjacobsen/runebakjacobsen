@@ -43,7 +43,7 @@ const GlobalStyle = createGlobalStyle`
     p {margin-bottom: 1.15rem;}
 
     h1, h2, h3, h4, h5 {
-        margin: 2.75rem 0 1.05rem;
+        margin: 2.75rem 0 1.05rem;  
         line-height: 1.15;
         font-weight: bold;
     }
@@ -86,16 +86,9 @@ const GlobalStyle = createGlobalStyle`
         font-weight: 700;
     }
 
-    section {
-        margin: 1.15rem auto;
-        ${above.xl`
-            width: 80%;
-        `}
-    }
-
-    main, .container {
-        margin: 0 auto;
-        padding: 0 1em;
+    section, nav {
+        padding: 0 1rem;
+        margin: 0 auto 0 auto;
         ${above.sm`
             width: 540px;
         `}
@@ -103,12 +96,17 @@ const GlobalStyle = createGlobalStyle`
             width: 720px;
         `}
         ${above.lg`
-            width: 960px;
-        `}
-        ${above.xl`
-            width: 1140px;
+            width: 860px;
         `}
     }
+    section {
+        margin-bottom: 1.15rem;
+    }
+
+    main {
+        width: 100%;
+    }
+
 `
 
 export default GlobalStyle
