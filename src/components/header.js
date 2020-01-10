@@ -4,13 +4,15 @@ import React from "react"
 import styled from "styled-components"
 import MobileNav from "./mobile-nav"
 import { above } from "../utilities/breakpoints"
+import { Highlight } from "./highlight"
+import { darken } from "polished"
 
 const Header = ({ siteTitle }) => (
   <HeaderWrapper>
     <MobileNav />
     <nav>
       <span>
-        <Link to="/">{siteTitle}</Link>
+        <Link to="/">{siteTitle}.</Link>
       </span>
       <div>
         <Link to="/blog">Blog</Link>
@@ -30,9 +32,10 @@ Header.defaultProps = {
 }
 
 const HeaderWrapper = styled.header`
-  background: #2c5282;
+  border-bottom: 4px solid darkorange;
+  background: ${darken(0.1, "darkorange")};
   padding: 1em;
-  font-size: 1.125em;
+  /* font-size: 1.125em; */
   margin-bottom: 2rem;
 
   nav {
@@ -46,14 +49,15 @@ const HeaderWrapper = styled.header`
   }
 
   a {
-    color: #fff;
-    text-decoration: none;
     margin-left: 1em;
   }
 
   span a {
     margin-left: 0;
-    font-weight: 500;
+    font-style: italic;
+    font-weight: 900;
+    color: #1b1b1b;
+    text-decoration: none;
   }
 `
 

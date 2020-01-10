@@ -85,7 +85,9 @@ const GlobalStyle = createGlobalStyle`
     b {
         font-weight: 700;
     }
-
+    a {
+        color: inherit;
+    }
     section, nav {
         padding: 0 1rem;
         margin: 0 auto 0 auto;
