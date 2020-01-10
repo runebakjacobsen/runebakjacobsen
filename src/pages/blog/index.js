@@ -3,6 +3,7 @@ import Layout from "../../components/layout"
 import SEO from "../../components/seo"
 import PostPreview from "../../components/post-preview"
 import { graphql } from "gatsby"
+import { Highlight } from "../../components/highlight"
 
 export const query = graphql`
   query BlogQuery {
@@ -31,10 +32,15 @@ export const query = graphql`
 const BlogPage = ({ data }) => (
   <Layout hero={{ title: "Blog" }}>
     <SEO title="Blog" />
-    <h1>Recent Posts</h1>
-    {data.allMdx.edges.map(edge => (
-      <PostPreview key={edge.node.frontmatter.path} post={edge.node} />
-    ))}
+    <section>
+      <h1>
+        <Highlight>Recent Posts</Highlight>
+      </h1>
+
+      {data.allMdx.edges.map(edge => (
+        <PostPreview key={edge.node.frontmatter.path} post={edge.node} />
+      ))}
+    </section>
   </Layout>
 )
 

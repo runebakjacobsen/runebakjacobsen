@@ -21,9 +21,13 @@ const PostPreview = ({ post }) => {
 
 const Post = styled.article`
   padding: 1.5rem;
-  box-shadow: 8px 14px 38px rgba(39, 44, 49, 0.06),
-    1px 3px 8px rgba(39, 44, 49, 0.03);
+  margin-bottom: 1.5rem;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
 
+  &:last-of-type {
+    margin-bottom: 0;
+  }
   a svg {
     margin-left: 0.25rem;
   }
