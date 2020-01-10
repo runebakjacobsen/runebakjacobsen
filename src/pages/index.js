@@ -37,15 +37,20 @@ const IndexPage = ({ data }) => (
     <Welcome />
     <GreyBackground>
       <section>
-        <h3>
+        <h2>
           <Highlight>Recent Posts.</Highlight>
-        </h3>
+        </h2>
 
         {data.allMdx.edges.map(edge => (
           <PostPreview key={edge.node.frontmatter.path} post={edge.node} />
         ))}
       </section>
     </GreyBackground>
+    <section>
+      <h4>
+        <Highlight>Sign up for more good stuff!</Highlight>
+      </h4>
+    </section>
   </Layout>
 )
 

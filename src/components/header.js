@@ -4,8 +4,6 @@ import React from "react"
 import styled from "styled-components"
 import MobileNav from "./mobile-nav"
 import { above } from "../utilities/breakpoints"
-import { Highlight } from "./highlight"
-import { darken } from "polished"
 
 const Header = ({ siteTitle }) => (
   <HeaderWrapper>
@@ -32,10 +30,11 @@ Header.defaultProps = {
 }
 
 const HeaderWrapper = styled.header`
-  border-bottom: 4px solid darkorange;
-  background: ${darken(0.1, "darkorange")};
+  border-bottom: 6px solid darkorange;
+  background: #1a202c;
   padding: 1em;
-  /* font-size: 1.125em; */
+  font-size: 1.125em;
+  color: #fff;
   margin-bottom: 2rem;
 
   nav {
@@ -56,8 +55,7 @@ const HeaderWrapper = styled.header`
     margin-left: 0;
     font-style: italic;
     font-weight: 900;
-    color: #1b1b1b;
-    text-decoration: none;
+    border: none;
   }
 `
 

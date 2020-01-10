@@ -26,7 +26,7 @@ const GlobalStyle = createGlobalStyle`
         font-weight: 400;
         height:100%;
         line-height: 1.65;
-        color: #1b1b1b;
+        color: #1a202c;
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
           "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
           sans-serif;
@@ -45,7 +45,8 @@ const GlobalStyle = createGlobalStyle`
     h1, h2, h3, h4, h5 {
         margin: 2.75rem 0 1.05rem;  
         line-height: 1.15;
-        font-weight: bold;
+        font-weight: 900;
+        letter-spacing: -1px;
     }
 
     h1 {
@@ -87,6 +88,8 @@ const GlobalStyle = createGlobalStyle`
     }
     a {
         color: inherit;
+        border-bottom: 1px solid;
+        text-decoration: none;
     }
     section, nav {
         padding: 0 1rem;
