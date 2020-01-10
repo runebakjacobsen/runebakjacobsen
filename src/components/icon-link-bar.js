@@ -17,6 +17,7 @@ const IconLinkBar = () => {
 const Wrapper = styled.div`
   a {
     margin-left: 1rem;
+    border: none;
   }
 `
 
