@@ -33,7 +33,7 @@ const BlogPage = ({ data }) => (
     <SEO title="Blog" />
     <h1>Recent Posts</h1>
     {data.allMdx.edges.map(edge => (
-      <PostPreview post={edge.node} />
+      <PostPreview key={edge.node.frontmatter.path} post={edge.node} />
     ))}
   </Layout>
 )

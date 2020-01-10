@@ -43,9 +43,9 @@ const GlobalStyle = createGlobalStyle`
     p {margin-bottom: 1.15rem;}
 
     h1, h2, h3, h4, h5 {
-    margin: 2.75rem 0 1.05rem;
-    font-weight: 400;
-    line-height: 1.15;
+        margin: 2.75rem 0 1.05rem;
+        line-height: 1.15;
+        font-weight: bold;
     }
 
     h1 {

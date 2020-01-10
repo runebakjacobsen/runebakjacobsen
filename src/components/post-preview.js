@@ -32,10 +32,12 @@ const PostPreview = ({ post }) => {
 
 const Post = styled.article`
   border: 1px solid ${lighten(0.625, "#1a202c")};
-  border-radius: 0.25rem;
+  border-radius: 0.5rem;
   display: flex;
   flex-wrap: wrap;
   padding: 1rem;
+  box-shadow: 8px 14px 38px rgba(39, 44, 49, 0.06),
+    1px 3px 8px rgba(39, 44, 49, 0.03);
 
   a svg {
     margin-left: 0.25rem;

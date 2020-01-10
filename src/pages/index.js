@@ -4,6 +4,7 @@ import SEO from "../components/seo"
 import Welcome from "../components/welcome"
 import PostPreview from "../components/post-preview"
 import { graphql } from "gatsby"
+import { Highlight } from "../components/highlight"
 
 export const query = graphql`
   query IndexQuery {
@@ -35,14 +36,16 @@ const IndexPage = ({ data }) => (
     <Welcome />
     <section>
       <p>
-        Welcome to my website, eventually there will be some blog posts and
-        other fun stuff here. Stay tuned!
+        This is my personal website, and eventually there will be some blog
+        posts and other fun stuff here. Stay tuned!
       </p>
     </section>
     <section>
-      <h3>Recent Posts</h3>
+      <h3>
+        <Highlight>Recent Posts.</Highlight>
+      </h3>
       {data.allMdx.edges.map(edge => (
-        <PostPreview post={edge.node} />
+        <PostPreview key={edge.node.frontmatter.path} post={edge.node} />
       ))}
     </section>
   </Layout>
