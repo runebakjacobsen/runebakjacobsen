@@ -4,7 +4,6 @@ import React from "react"
 import styled from "styled-components"
 import MobileNav from "./mobile-nav"
 import { above } from "../utilities/breakpoints"
-import Memoji from "./memoji"
 
 const Header = ({ siteTitle }) => (
   <HeaderWrapper>
@@ -16,7 +15,7 @@ const Header = ({ siteTitle }) => (
       <div>
         <Link to="/blog">Blog</Link>
         <Link to="/about">About</Link>
-        <Link to="/about">Contact</Link>
+        <Link to="/contact">Contact</Link>
       </div>
     </nav>
   </HeaderWrapper>

@@ -86,6 +86,13 @@ const GlobalStyle = createGlobalStyle`
         font-weight: 700;
     }
 
+    section {
+        margin: 1.15rem auto;
+        ${above.xl`
+            width: 80%;
+        `}
+    }
+
     main, .container {
         margin: 0 auto;
         padding: 0 1em;
