@@ -6,6 +6,7 @@ import PostPreview from "../components/post-preview"
 import { graphql } from "gatsby"
 import { Highlight } from "../components/highlight"
 import { GreyBackground } from "../components/grey-background"
+import MailinglistSubscribeForm from "../components/mailinglist-subscribe-form"
 
 export const query = graphql`
   query IndexQuery {
@@ -47,9 +48,7 @@ const IndexPage = ({ data }) => (
       </section>
     </GreyBackground>
     <section>
-      <h4>
-        <Highlight>Sign up for more good stuff!</Highlight>
-      </h4>
+      <MailinglistSubscribeForm />
     </section>
   </Layout>
 )

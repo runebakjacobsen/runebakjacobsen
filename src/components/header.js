@@ -49,6 +49,7 @@ const HeaderWrapper = styled.header`
 
   a {
     margin-left: 1em;
+    border: none;
   }
 
   span a {

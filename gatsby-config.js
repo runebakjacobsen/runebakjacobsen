@@ -48,6 +48,13 @@ module.exports = {
         path: `${__dirname}/src/pages/blog/`,
       },
     },
+    {
+      resolve: "gatsby-plugin-mailchimp",
+      options: {
+        endpoint:
+          "https://runebakjacobsen.us4.list-manage.com/subscribe/post?u=63d4e6315ddc892e6bf78bc5e&amp;id=a94a334fab",
+      },
+    },
     // this (optional) plugin enables Progressive Web App + Offline functionality
     // To learn more, visit: https://gatsby.dev/offline
     // `gatsby-plugin-offline`,

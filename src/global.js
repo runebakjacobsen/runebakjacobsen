@@ -13,7 +13,7 @@ const GlobalStyle = createGlobalStyle`
     }
 
     ${dom.css()}
-    
+
     html {
         box-sizing: border-box;
         font-size: 16px;
@@ -35,6 +35,11 @@ const GlobalStyle = createGlobalStyle`
           sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+    }
+    button, input, optgroup, select, textarea {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+          "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+          sans-serif;
     }
     
     div#___gatsby, div#gatsby-focus-wrapper {
@@ -91,7 +96,7 @@ const GlobalStyle = createGlobalStyle`
     }
     a {
         color: inherit;
-        border-bottom: 1px solid;
+        border-bottom: 1px solid darkorange;
         text-decoration: none;
     }
     section, nav {
