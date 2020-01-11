@@ -56,6 +56,16 @@ module.exports = {
           "https://runebakjacobsen.us4.list-manage.com/subscribe/post?u=63d4e6315ddc892e6bf78bc5e&amp;id=a94a334fab",
       },
     },
+    {
+      resolve: "gatsby-plugin-sentry",
+      options: {
+        dsn: "https://185918ed8b8f46a8911871b478f8973d@sentry.io/1878385",
+        // Optional settings, see https://docs.sentry.io/clients/node/config/#optional-settings
+        // environment: process.env.NODE_ENV,
+        // enabled: (() =>
+        //   ["production", "stage"].indexOf(process.env.NODE_ENV) !== -1)(),
+      },
+    },
     // this (optional) plugin enables Progressive Web App + Offline functionality
     // To learn more, visit: https://gatsby.dev/offline
     // `gatsby-plugin-offline`,

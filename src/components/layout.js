@@ -10,6 +10,7 @@ import PropTypes from "prop-types"
 import GlobalStyle from "../global"
 import Header from "./header"
 import Footer from "./footer"
+import ErrorBoundary from "../components/error-boundary"
 import { useStaticQuery, graphql } from "gatsby"
 import { library, config } from "@fortawesome/fontawesome-svg-core"
 import {
@@ -46,7 +47,9 @@ const Layout = ({ children }) => {
     <>
       <Header siteTitle={data.site.siteMetadata.title} />
       <GlobalStyle />
-      <main>{children}</main>
+      <ErrorBoundary>
+        <main>{children}</main>
+      </ErrorBoundary>
       <Footer />
     </>
   )
