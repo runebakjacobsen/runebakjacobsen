@@ -1,8 +1,8 @@
 import React, { useState } from "react"
-import { Highlight } from "./highlight"
 import addToMailchimp from "gatsby-plugin-mailchimp"
 import styled from "styled-components"
-import { lighten } from "polished"
+import { Input } from "../elements/inputs"
+import { Button } from "../elements/buttons"
 
 const MailinglistSubscribeForm = () => {
   const [email, setEmail] = useState("")
@@ -31,13 +31,13 @@ const MailinglistSubscribeForm = () => {
         <i>Sign up for more good stuff!</i>
       </h4>
       <div>
-        <input
+        <Input
           placeholder="Email address"
           name="email"
           type="text"
           onChange={handleEmailChange}
         />
-        <button type="submit">Subscribe</button>
+        <Button type="submit">Subscribe</Button>
       </div>
     </Form>
   )
@@ -45,19 +45,4 @@ const MailinglistSubscribeForm = () => {
 
 export default MailinglistSubscribeForm
 
-const Form = styled.form`
-  input {
-    background: ${lighten(0.82, "#1a202c")};
-    border: none;
-    padding: 1rem;
-    border: 1px solid transparent;
-  }
-  button {
-    background: darkorange;
-    border: none;
-    padding: 1rem;
-    font-weight: 900;
-    border: 1px solid darkorange;
-    font-style: italic;
-  }
-`
+const Form = styled.form``
