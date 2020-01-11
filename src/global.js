@@ -1,6 +1,7 @@
 import { createGlobalStyle } from "styled-components"
 import { normalize } from "polished"
 import { above } from "./utilities/breakpoints"
+import { dom } from "@fortawesome/fontawesome-svg-core"
 
 const GlobalStyle = createGlobalStyle`
     ${normalize()}
@@ -10,6 +11,8 @@ const GlobalStyle = createGlobalStyle`
     @supports (font-variation-settings: normal) {
       body { font-family: 'Inter var', sans-serif; }
     }
+
+    ${dom.css()}
     
     html {
         box-sizing: border-box;

@@ -11,7 +11,7 @@ import GlobalStyle from "../global"
 import Header from "./header"
 import Footer from "./footer"
 import { useStaticQuery, graphql } from "gatsby"
-import { library } from "@fortawesome/fontawesome-svg-core"
+import { library, config } from "@fortawesome/fontawesome-svg-core"
 import {
   fab,
   faGithubSquare,
@@ -29,6 +29,7 @@ library.add(
   faEnvelopeSquare,
   faArrowRight
 )
+config.autoAddCss = false
 
 const Layout = ({ children }) => {
   const data = useStaticQuery(graphql`
