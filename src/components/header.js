@@ -14,7 +14,6 @@ const Header = ({ siteTitle }) => (
       </span>
       <div>
         <Link to="/blog">Blog</Link>
-        <Link to="/about">About</Link>
         <Link to="/contact">Contact</Link>
       </div>
     </nav>

@@ -10,7 +10,11 @@ import MailinglistSubscribeForm from "../components/mailinglist-subscribe-form"
 
 export const query = graphql`
   query IndexQuery {
-    allMdx(limit: 10, sort: { fields: frontmatter___date }) {
+    allMdx(
+      limit: 10
+      sort: { fields: frontmatter___date }
+      filter: { frontmatter: { draft: { ne: true } } }
+    ) {
       edges {
         node {
           excerpt
@@ -36,17 +40,19 @@ const IndexPage = ({ data }) => (
   <Layout>
     <SEO title="Home" />
     <Welcome />
-    <GreyBackground>
-      <section>
-        <h2>
-          <Highlight>Recent Posts.</Highlight>
-        </h2>
+    {data.allMdx.edges.length > 0 && (
+      <GreyBackground>
+        <section>
+          <h2>
+            <Highlight>Recent Posts.</Highlight>
+          </h2>
 
-        {data.allMdx.edges.map(edge => (
-          <PostPreview key={edge.node.frontmatter.path} post={edge.node} />
-        ))}
-      </section>
-    </GreyBackground>
+          {data.allMdx.edges.map(edge => (
+            <PostPreview key={edge.node.frontmatter.path} post={edge.node} />
+          ))}
+        </section>
+      </GreyBackground>
+    )}
     <section>
       <MailinglistSubscribeForm />
     </section>

@@ -7,7 +7,11 @@ import { Highlight } from "../../components/highlight"
 
 export const query = graphql`
   query BlogQuery {
-    allMdx(limit: 10, sort: { fields: frontmatter___date }) {
+    allMdx(
+      limit: 10
+      sort: { fields: frontmatter___date }
+      filter: { frontmatter: { draft: { ne: true } } }
+    ) {
       edges {
         node {
           excerpt
@@ -36,10 +40,13 @@ const BlogPage = ({ data }) => (
       <h1>
         <Highlight>Recent Posts</Highlight>
       </h1>
-
-      {data.allMdx.edges.map(edge => (
-        <PostPreview key={edge.node.frontmatter.path} post={edge.node} />
-      ))}
+      {data.allMdx.edges.length > 0 ? (
+        data.allMdx.edges.map(edge => (
+          <PostPreview key={edge.node.frontmatter.path} post={edge.node} />
+        ))
+      ) : (
+        <p>Sorry, no posts were found.</p>
+      )}
     </section>
   </Layout>
 )
