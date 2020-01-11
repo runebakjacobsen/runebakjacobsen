@@ -8,7 +8,10 @@ export const Input = styled.input`
   border: 1px solid transparent;
   transition: border-color 300ms;
   caret-color: darkorange;
+  border-radius: 0;
+  -webkit-appearance: none;
   &:focus {
+    outline: none;
     border-color: darkorange;
   }
 `

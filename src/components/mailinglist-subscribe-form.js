@@ -3,6 +3,8 @@ import addToMailchimp from "gatsby-plugin-mailchimp"
 import { Input } from "../elements/inputs"
 import { Button } from "../elements/buttons"
 import { Alert } from "../elements/alerts"
+import styled from "styled-components"
+import { above } from "../utilities/breakpoints"
 
 const MailinglistSubscribeForm = () => {
   const [email, setEmail] = useState("")
@@ -38,13 +40,15 @@ const MailinglistSubscribeForm = () => {
       <h4>
         <i>Sign up for more good stuff!</i>
       </h4>
-      <Input
-        placeholder="Email address"
-        name="email"
-        type="text"
-        onChange={handleEmailChange}
-      />
-      <Button type="submit">Subscribe</Button>
+      <InlineFormGroup>
+        <Input
+          placeholder="Email address"
+          name="email"
+          type="text"
+          onChange={handleEmailChange}
+        />
+        <Button type="submit">Subscribe</Button>
+      </InlineFormGroup>
       {error !== "" && (
         <Alert>
           Woops - Something went <b>wrong</b>. <br /> Looks like{" "}
@@ -55,5 +59,29 @@ const MailinglistSubscribeForm = () => {
     </form>
   )
 }
+
+const InlineFormGroup = styled.div`
+  display: flex;
+
+  ${above.md`
+  width: 62.5%;
+  `}
+  ${above.lg`
+  width: 50%;
+  `}
+
+  input {
+    width: 60%;
+    ${above.md`
+      width: 70%;
+    `}
+  }
+  button {
+    width: 40%;
+    ${above.md`
+      width: 30%;
+    `}
+  }
+`
 
 export default MailinglistSubscribeForm
