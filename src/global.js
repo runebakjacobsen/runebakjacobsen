@@ -89,7 +89,7 @@ const GlobalStyle = createGlobalStyle`
         margin-bottom: 0;
     }
 
-    small, .text_small {font-size: 0.8em;}
+    small {font-size: 0.8em;}
     
     b {
         font-weight: 700;
@@ -98,6 +98,10 @@ const GlobalStyle = createGlobalStyle`
         color: inherit;
         border-bottom: 1px solid darkorange;
         text-decoration: none;
+    }
+    label {
+        display: block;
+        margin-top: 1rem;
     }
     section, nav {
         padding: 0 1rem;
