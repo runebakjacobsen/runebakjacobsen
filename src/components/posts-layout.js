@@ -5,7 +5,9 @@ import PropTypes from "prop-types"
 const PostsLayout = ({ children }) => {
   return (
     <Layout>
-      <section>{children}</section>
+      <section>
+        <article>{children}</article>
+      </section>
     </Layout>
   )
 }
