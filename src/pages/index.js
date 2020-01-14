@@ -22,13 +22,6 @@ export const query = graphql`
             title
             date(formatString: "MMMM DD, YYYY")
             path
-            featuredImage {
-              childImageSharp {
-                fluid(maxWidth: 800) {
-                  ...GatsbyImageSharpFluid
-                }
-              }
-            }
           }
         }
       }
