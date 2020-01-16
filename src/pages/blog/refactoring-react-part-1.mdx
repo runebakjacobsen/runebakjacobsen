@@ -1,0 +1,80 @@
+---
+title: Refactoring React - Part 1
+path: /refactoring-react-part-1
+date: 2020-01-14
+draft: false
+---
+
+You can see the project here gtihub link
+
+so the big question.... Where to begin? I've poked around the project a little while, and I think if start at Home and work my way though there will be some natural flow.
+
+```
+import React, { useState, useEffect } from "react";
+import CTAImage from "./home/CTAImage";
+import Roaster from "../components/roasters/Roaster";
+import banner from "../images/brewer.jpg";
+import SingleProduct from "./productsView/SingleProduct";
+import apiService from "../services/apiService";
+
+const Home = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [featuredRoasters, setFeaturedRoasters] = useState([]);
+  useEffect(() => {
+    const getProducts = async () => {
+      const { products } = await apiService.getProducts(4, 0);
+      setFeaturedProducts(products);
+      const { roasters } = await apiService.getAllRoasters(3, 0);
+      setFeaturedRoasters(roasters);
+      setIsLoading(false);
+    };
+    getProducts();
+  }, []);
+
+  return (
+    <div>
+      <CTAImage
+        heading="Sustainable coffee from local roasters"
+        paragraph="Enjoy your coffee freshly brewed, deliveried right to your door"
+        image={banner}
+      />
+      <div className=" mt-10 mb-3">
+        <h2 className="text-2xl md:text-3xl font-serif text-center font-bold">
+          Featured Coffee Roasters
+        </h2>
+      </div>
+      {!isLoading && (
+        <div className="flex -mx-2">
+          {featuredRoasters.map(roaster => (
+            <Roaster key={roaster.id} info={roaster} />
+          ))}
+        </div>
+      )}
+      <div className=" mt-10 mb-3">
+        <h2 className="text-3xl font-serif text-center font-bold">
+          Featured Products
+        </h2>
+      </div>
+      {!isLoading ? (
+        <div className="flex -mx-2">
+          {featuredProducts.map(product => {
+            return <SingleProduct prod={product} key={product.id} />;
+          })}
+        </div>
+      ) : (
+        <p>loading...</p>
+      )}
+    </div>
+  );
+};
+
+export default Home;
+
+```
+
+going though the component, this isnt the worst of the bunch.. We have some loading state og som data state. The first thing that jumps to my eyes is that we have two conditionals actually doing the same logic, line 35 and line 47. 
+However! My plan for the process of this was to start writing tests, then rewrite logic/transform to TypeScript, so lets start of with some tests!
+
+Btw I am using [React Testing Library](https://github.com/testing-library/react-testing-library) for testing, since this is my preferred library for testing react. 
+
