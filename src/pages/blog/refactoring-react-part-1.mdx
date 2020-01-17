@@ -74,7 +74,103 @@ export default Home;
 ```
 
 going though the component, this isnt the worst of the bunch.. We have some loading state og som data state. The first thing that jumps to my eyes is that we have two conditionals actually doing the same logic, line 35 and line 47. 
+also the function getProducts, this name is kind of right but also wrong. This function both fetches products, but it also fetches some roasters to display.. So exactly great naming.. 
 However! My plan for the process of this was to start writing tests, then rewrite logic/transform to TypeScript, so lets start of with some tests!
 
-Btw I am using [React Testing Library](https://github.com/testing-library/react-testing-library) for testing, since this is my preferred library for testing react. 
+Btw I am using [React Testing Library](https://github.com/testing-library/react-testing-library) for testing + jest-fetch-mock for mocking fetch, since this is my preferred library for testing react. 
 
+so first of all what do we want to test? 
+Well we want to test that the page displays some loading indicator while data is being fetched 
+we want to test that the data is displayed when the loading is done 
+we want to test that an error message is displayed if the data fetch fails (it does not atm but we will fix it)
+find button and click 
+
+Lets write some tests!
+
+I want to change the loading indicator, becuase i know it its different all around. Lets make a loading component. I am using [this css](https://www.30secondsofcode.org/css/s/donut-spinner/) to make a spinner. 
+
+```
+import React from "react";
+
+const Loading = () => {
+  return <div className="loading"></div>;
+};
+
+export default Loading;
+```
+
+Great, now back to the tests.. 
+we want to test that the page displays some loading indicator while data is being fetched -- do we?
+
+during the first test an error was uncovered, a typeerror . The proptypes in the component SingeProduct was not probaerly setup. Atm gets the props prod, and prod is an object consisting of different rquired attributes. IT was like this 
+
+test for the first thing
+test("should render roasters and products", async () => {
+  fetch.mockResponseOnce(JSON.stringify(mockProducts));
+  fetch.mockResponseOnce(JSON.stringify(mockRoasters));
+  const { queryByTestId, getAllByTestId } = render(
+    <MemoryRouter>
+      <Home />
+    </MemoryRouter>
+  );
+
+  expect(queryByTestId("loading")).toBeTruthy();
+
+  const cardTitles = await waitForElement(() => getAllByTestId("card-name"));
+  expect(queryByTestId("loading")).toBeFalsy();
+
+  // Check roaster data is correct
+  expect(cardTitles.length).toBe(3);
+
+  expect(cardTitles[0].textContent).toBe(mockRoasters.data[0].name);
+  expect(getAllByTestId("card-address")[0].textContent).toBe(
+    mockRoasters.data[0].address.city
+  );
+  expect(getAllByTestId("card-link")[0].getAttribute("href")).toBe(
+    "/roaster/" + mockRoasters.data[0].id
+  );
+
+  // Check product data is correct
+  const singleProductTitles = await waitForElement(() =>
+    getAllByTestId("single-product-name")
+  );
+  expect(singleProductTitles.length).toBe(4);
+  expect(singleProductTitles[0].textContent).toBe(mockProducts.data[0].name);
+  expect(getAllByTestId("single-product-link")[0].getAttribute("href")).toBe(
+    "/product/" + mockProducts.data[0].id
+  );
+  expect(getAllByTestId("single-product-roastername")[0].textContent).toBe(
+    `Roasted by ${mockProducts.data[0].roasterName}`
+  );
+  expect(getAllByTestId("single-product-price")[0].textContent).toBe(
+    `${mockProducts.data[0].price.toFixed(2)} kr`
+  );
+});
+
+
+SingleProduct.propTypes = {
+  prod: PropTypes.objectOf
+};
+
+and we refactored it to this with shape since it has a certain form and we know the keys ahead of time 
+
+so now it looks like 
+SingleProduct.propTypes = {
+  prod: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    price: PropTypes.number.isRequired,
+    roasterName: PropTypes.string.isRequired,
+    imageData: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+      PropTypes.bool
+    ]),
+    id: PropTypes.number.isRequired
+  })
+};
+
+
+so now we want to test what happens if the fetch fails 
+and mocking the api we already have the problem - what element do we wait on to check loading is remoe and error is displayed? Nthogin so lets add it. 
+
+the way we handled the apis calls was to add them all to a class we called apiservice. however as of now, this file is out of control and over 700 lines long.. So its hard to find anything, and to change anything in it. There is error handling in the api calls but the only way to see this is if its returned data is empty.. But is this a good eay to handle api errors? I dont think so. we want different logic for an empty response vs an error esponse. I want to change the apiservice to fetch hooks. I think i want a hook that is more 'global' like this https://scotch.io/tutorials/create-a-custom-usefetch-react-hook that i cloud use any where and use that hook in other speciality fetching hooks and get the response put that way.  
