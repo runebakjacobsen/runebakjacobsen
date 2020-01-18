@@ -1,7 +1,7 @@
 ---
 title: Refactoring React - Part 1
 path: /refactoring-react-part-1
-date: 2020-01-14
+date: 2020-01-19
 draft: false
 ---
 
@@ -105,6 +105,7 @@ we want to test that the page displays some loading indicator while data is bein
 during the first test an error was uncovered, a typeerror . The proptypes in the component SingeProduct was not probaerly setup. Atm gets the props prod, and prod is an object consisting of different rquired attributes. IT was like this 
 
 test for the first thing
+```
 test("should render roasters and products", async () => {
   fetch.mockResponseOnce(JSON.stringify(mockProducts));
   fetch.mockResponseOnce(JSON.stringify(mockRoasters));
@@ -146,15 +147,16 @@ test("should render roasters and products", async () => {
     `${mockProducts.data[0].price.toFixed(2)} kr`
   );
 });
-
-
+```
+```
 SingleProduct.propTypes = {
   prod: PropTypes.objectOf
 };
-
+```
 and we refactored it to this with shape since it has a certain form and we know the keys ahead of time 
 
 so now it looks like 
+```
 SingleProduct.propTypes = {
   prod: PropTypes.shape({
     name: PropTypes.string.isRequired,
@@ -169,8 +171,207 @@ SingleProduct.propTypes = {
   })
 };
 
-
+```
 so now we want to test what happens if the fetch fails 
 and mocking the api we already have the problem - what element do we wait on to check loading is remoe and error is displayed? Nthogin so lets add it. 
 
-the way we handled the apis calls was to add them all to a class we called apiservice. however as of now, this file is out of control and over 700 lines long.. So its hard to find anything, and to change anything in it. There is error handling in the api calls but the only way to see this is if its returned data is empty.. But is this a good eay to handle api errors? I dont think so. we want different logic for an empty response vs an error esponse. I want to change the apiservice to fetch hooks. I think i want a hook that is more 'global' like this https://scotch.io/tutorials/create-a-custom-usefetch-react-hook that i cloud use any where and use that hook in other speciality fetching hooks and get the response put that way.  
+the way we handled the apis calls was to add them all to a class we called apiservice. however as of now, this file is out of control and over 700 lines long.. So its hard to find anything, and to change anything in it. There is error handling in the api calls but the only way to see this is if its returned data is empty.. But is this a good eay to handle api errors? I dont think so. we want different logic for an empty response vs an error esponse. I want to change the apiservice to fetch hooks(I would love to use suspense but lets do this for now ans maybe in the furture I will transfer to suspense ). I think i want a hook that is more 'global' like this https://scotch.io/tutorials/create-a-custom-usefetch-react-hook that i cloud use any where and use that hook in other speciality fetching hooks and get the response put that way.  
+so lets add the great  fetchhook from scotch 
+
+we then create a usefetchfeaturedproducts hook (we are faking the 'featured' part, but it is not suported in the api)
+```
+import useFetch from "./useFetch";
+
+const useFetchFeaturedProducts = () => {
+  const params = new URLSearchParams({
+    PageSize: 4,
+    PageNumber: 0
+  });
+  const url = `${process.env.REACT_APP_API_URL}/coffee?${params.toString()}`;
+
+  const options = {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    }
+  };
+
+  const { response, error, isLoading } = useFetch(url, options);
+
+  let featuredProducts = null;
+
+  if (response) {
+    featuredProducts = response.data;
+  }
+
+  return { featuredProducts, error, isLoading };
+};
+
+export default useFetchFeaturedProducts;
+```
+we do the same for the featured roasters fetching -- the hooks are pretty similar so i will skip it here 
+
+our home component now looks like this. 
+```
+import React from "react";
+import CTAImage from "./home/CTAImage";
+import Roaster from "../components/roasters/Roaster";
+import banner from "../images/brewer.jpg";
+import SingleProduct from "./productsView/SingleProduct";
+import Error from "./Error";
+import Loading from "./Loading";
+import useFetchFeaturedProducts from "../hooks/useFetchFeaturedProducts";
+import useFetchFeaturedRoasters from "../hooks/useFetchFeaturedRoasters";
+
+const Home = () => {
+  const {
+    featuredRoasters,
+    error: featuredRoastersError,
+    isLoading: featuredRoastersIsLoading
+  } = useFetchFeaturedRoasters();
+  const {
+    featuredProducts,
+    error: featuredProductsError,
+    isLoading: featuredProductsIsLoading
+  } = useFetchFeaturedProducts();
+
+  return (
+    <div>
+      <CTAImage
+        heading="Sustainable coffee from local roasters"
+        paragraph="Enjoy your coffee freshly brewed, deliveried right to your door"
+        image={banner}
+      />
+      <div className=" mt-10 mb-3">
+        <h2 className="text-2xl md:text-3xl font-serif text-center font-bold">
+          Featured Coffee Roasters
+        </h2>
+      </div>
+      {!featuredRoastersIsLoading && !featuredRoastersError ? (
+        <div className="flex -mx-2">
+          {featuredRoasters.map(roaster => (
+            <Roaster key={roaster.id} info={roaster} />
+          ))}
+        </div>
+      ) : (
+        <Loading />
+      )}
+      {featuredRoastersError && (
+        <Error message={featuredRoastersError.message} />
+      )}
+      <div className=" mt-10 mb-3">
+        <h2 className="text-3xl font-serif text-center font-bold">
+          Featured Products
+        </h2>
+      </div>
+      {!featuredProductsIsLoading && !featuredProductsError ? (
+        <div className="flex -mx-2">
+          {featuredProducts.map(product => {
+            return <SingleProduct prod={product} key={product.id} />;
+          })}
+        </div>
+      ) : (
+        <Loading />
+      )}
+      {featuredProductsError && (
+        <Error message={featuredProductsError.message} />
+      )}
+    </div>
+  );
+};
+
+export default Home;
+```
+lets finish the test 
+```
+test("should render error on fetch reject", async () => {
+  fetch.mockResponseOnce("", { status: 500 });
+  fetch.mockResponseOnce("", { status: 500 });
+
+  const { queryAllByTestId, getAllByTestId, debug } = render(
+    <MemoryRouter>
+      <Home />
+    </MemoryRouter>
+  );
+
+  expect(queryAllByTestId("loading")).toBeTruthy();
+  const error = await waitForElement(() => getAllByTestId("error"));
+  expect(error.length).toBe(2);
+});
+```
+
+Great -- we now have the "front page" of the application tested. 
+
+Looking at the home componnet, i think it hhas too many responsibilties so i want to split i up some. 
+
+I want to put featured roaster  and featured products into separate conponents like this 
+```
+import React from "react";
+import Roaster from "../components/roasters/Roaster";
+import useFetchFeaturedRoasters from "../hooks/useFetchFeaturedRoasters";
+import Error from "./Error";
+import Loading from "./Loading";
+
+const FeaturedRoasters = () => {
+  const { featuredRoasters, error, isLoading } = useFetchFeaturedRoasters();
+
+  if (error) {
+    return <Error message={error.message} />;
+  }
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  return (
+    <>
+      <div className=" mt-10 mb-3">
+        <h2 className="text-2xl md:text-3xl font-serif text-center font-bold">
+          Featured Coffee Roasters
+        </h2>
+      </div>
+      <div className="flex -mx-2">
+        {featuredRoasters.map(roaster => (
+          <Roaster key={roaster.id} info={roaster} />
+        ))}
+      </div>
+    </>
+  );
+};
+
+export default FeaturedRoasters;
+```
+
+The products one is very similar so we skip it 
+So now our home component is vastly simlified to this 
+```
+import React from "react";
+import CTAImage from "./home/CTAImage";
+import banner from "../images/brewer.jpg";
+import FeaturedRoasters from "./FeaturedRoasters";
+import FeaturedProducts from "./FeaturedProducts";
+
+const Home = () => {
+  return (
+    <div>
+      <CTAImage
+        heading="Sustainable coffee from local roasters"
+        paragraph="Enjoy your coffee freshly brewed, deliveried right to your door"
+        image={banner}
+      />
+      <FeaturedRoasters />
+      <FeaturedProducts />
+    </div>
+  );
+};
+
+export default Home;
+```
+
+And since it added test before this refactor, i just have to run them again to check everything is in order, which it is :) 
+
+And yes i know -- featured products and featured roaster components are really similiar, why dont use make i dynamic one.. I could, but to what benefit? higher complexity? I think this method is very simple and easy to understand, and i  believe that is more værdifult than everything being dry dry dry... 
+
+I think this is good now, lets pick it up the next post, where will start transforming some of the components to typescript. 
+
