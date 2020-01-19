@@ -16,41 +16,45 @@ const Pre = styled.pre`
   padding: 0.5em;
 `
 
-export default ({ children, className }) => {
+export default ({ children }) => {
   const language =
-    className !== undefined ? className.replace(/language-/, "") : "jsx"
+    children.props.className !== undefined
+      ? children.props.className.replace(/language-/, "")
+      : "jsx"
 
   return (
     <Highlight
       {...defaultProps}
       theme={theme}
-      code={children}
+      code={children.props.children}
       language={language}
     >
       {({ className, style, tokens, getLineProps, getTokenProps }) => (
         <Pre className={className} style={style}>
-          {tokens.map((line, i) => {
-            // Remove the last empty line:
-            let lineNumberElem
-            if (
-              line.length === 1 &&
-              line[0].empty === true &&
-              i === tokens.length - 1
-            ) {
-              lineNumberElem = null
-            } else {
-              lineNumberElem = <LineNo>{i + 1}</LineNo>
-            }
+          <code>
+            {tokens.map((line, i) => {
+              // Remove the last empty line:
+              let lineNumberElem
+              if (
+                line.length === 1 &&
+                line[0].empty === true &&
+                i === tokens.length - 1
+              ) {
+                lineNumberElem = null
+              } else {
+                lineNumberElem = <LineNo>{i + 1}</LineNo>
+              }
 
-            return (
-              <div key={i} {...getLineProps({ line, key: i })}>
-                {lineNumberElem}
-                {line.map((token, key) => (
-                  <span key={key} {...getTokenProps({ token, key })} />
-                ))}
-              </div>
-            )
-          })}
+              return (
+                <div key={i} {...getLineProps({ line, key: i })}>
+                  {lineNumberElem}
+                  {line.map((token, key) => (
+                    <span key={key} {...getTokenProps({ token, key })} />
+                  ))}
+                </div>
+              )
+            })}
+          </code>
         </Pre>
       )}
     </Highlight>

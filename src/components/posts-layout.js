@@ -5,7 +5,7 @@ import { MDXProvider } from "@mdx-js/react"
 import CodeBlock from "../components/code-block"
 
 const components = {
-  code: CodeBlock,
+  pre: CodeBlock,
 }
 
 const PostsLayout = ({ children }) => {
