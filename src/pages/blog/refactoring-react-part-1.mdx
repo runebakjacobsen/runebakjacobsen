@@ -5,11 +5,17 @@ date: 2020-01-19
 draft: false
 ---
 
-You can see the project here gtihub link
+# Refactoring React - Part 1
 
-so the big question.... Where to begin? I've poked around the project a little while, and I think if start at Home and work my way though there will be some natural flow.
+[Link to the GitHub project.](https://github.com/runebakjacobsen/refactoring-react)
 
-```
+If you haven't read the first post in the series [you can check it here](/blog/refactoring-react-part-0), otherwise long story short - I am refactoring a React project. 
+
+It took me some time to determine where I wanted to begin with the refactor, but I decided to take it easy in the first run and start with a basic component. 
+So I am starting with the `Home` component, which is the index of the page. 
+
+This is how it looks before the refactor.
+```jsx
 import React, { useState, useEffect } from "react";
 import CTAImage from "./home/CTAImage";
 import Roaster from "../components/roasters/Roaster";
@@ -70,41 +76,30 @@ const Home = () => {
 };
 
 export default Home;
-
 ```
 
-going though the component, this isnt the worst of the bunch.. We have some loading state og som data state. The first thing that jumps to my eyes is that we have two conditionals actually doing the same logic, line 35 and line 47. 
-also the function getProducts, this name is kind of right but also wrong. This function both fetches products, but it also fetches some roasters to display.. So exactly great naming.. 
-However! My plan for the process of this was to start writing tests, then rewrite logic/transform to TypeScript, so lets start of with some tests!
+Some initial comments about the component. We have some loading state and data state. The first thing that jumps to my eyes is the two conditionals doing the same logic on line 35 and 47. Furthermore the `getProducts` function name is misleading, since it is not only getting products, but also roasters. Additionally we are blocking the render of products and roasters by waiting on both of the API calls in the same `useEffect`.
 
-Btw I am using [React Testing Library](https://github.com/testing-library/react-testing-library) for testing + jest-fetch-mock for mocking fetch, since this is my preferred library for testing react. 
+Let's start the refactor off with some tests! I am using [React Testing Library](https://github.com/testing-library/react-testing-library) for testing and [jest-fetch-mock](jest-fetch-mock) for mocking fetch, since this is my preferred library for testing react. 
 
-so first of all what do we want to test? 
-Well we want to test that the page displays some loading indicator while data is being fetched 
-we want to test that the data is displayed when the loading is done 
-we want to test that an error message is displayed if the data fetch fails (it does not atm but we will fix it)
-find button and click 
+## What to test?
 
-Lets write some tests!
+First of all I want to test that when the data is being fetched the loading indicator is showing and when the data is fetched it is correctly displayed. Also if the data fetched fails, I want to display an error. 
 
-I want to change the loading indicator, becuase i know it its different all around. Lets make a loading component. I am using [this css](https://www.30secondsofcode.org/css/s/donut-spinner/) to make a spinner. 
+The application uses all kinds of different loading messages, so I want to generalize this to a common loading indicator used across the application. To do this I made a `Loading` component that shows a spinner made with [this css](https://www.30secondsofcode.org/css/s/donut-spinner/).
 
 ```
 import React from "react";
 
 const Loading = () => {
-  return <div className="loading"></div>;
+  return <div className="loading" data-testid="loading"></div>;
 };
 
 export default Loading;
 ```
 
-Great, now back to the tests.. 
-we want to test that the page displays some loading indicator while data is being fetched -- do we?
+Great, now back to the tests. Here is what I did for the first test case, where we want to show the loading indicator and then the fetched data.
 
-during the first test an error was uncovered, a typeerror . The proptypes in the component SingeProduct was not probaerly setup. Atm gets the props prod, and prod is an object consisting of different rquired attributes. IT was like this 
-
-test for the first thing
 ```
 test("should render roasters and products", async () => {
   fetch.mockResponseOnce(JSON.stringify(mockProducts));
@@ -148,14 +143,16 @@ test("should render roasters and products", async () => {
   );
 });
 ```
+
+First, I am mocking the fetch calls with some mock data, I am rendering the component. You can see the first "expectation" on line 10, where I am expecting that the loading indicator is showing. Then I am waiting for the data from the fetch, and checking that the loading indicator is removed and that the data is corresponding with what was in the mocked data.
+
+And now comes the beauty of tests - An error was uncovered! There was a type error in the `SingleProduct` component. The `propTypes` of the component were not setup correctly. It only consisted of this
 ```
 SingleProduct.propTypes = {
   prod: PropTypes.objectOf
 };
 ```
-and we refactored it to this with shape since it has a certain form and we know the keys ahead of time 
-
-so now it looks like 
+Since the keys are known ahead of time, this proptype serves better as a `shape`, so I refactored it to this
 ```
 SingleProduct.propTypes = {
   prod: PropTypes.shape({
@@ -170,15 +167,15 @@ SingleProduct.propTypes = {
     id: PropTypes.number.isRequired
   })
 };
-
 ```
-so now we want to test what happens if the fetch fails 
-and mocking the api we already have the problem - what element do we wait on to check loading is remoe and error is displayed? Nthogin so lets add it. 
 
-the way we handled the apis calls was to add them all to a class we called apiservice. however as of now, this file is out of control and over 700 lines long.. So its hard to find anything, and to change anything in it. There is error handling in the api calls but the only way to see this is if its returned data is empty.. But is this a good eay to handle api errors? I dont think so. we want different logic for an empty response vs an error esponse. I want to change the apiservice to fetch hooks(I would love to use suspense but lets do this for now ans maybe in the furture I will transfer to suspense ). I think i want a hook that is more 'global' like this https://scotch.io/tutorials/create-a-custom-usefetch-react-hook that i cloud use any where and use that hook in other speciality fetching hooks and get the response put that way.  
-so lets add the great  fetchhook from scotch 
+On to the next test, I wanted to ensure that an error is displayed if the fetch fails. For this I want to wait for an error element in the test, but the Home component does not display errors if the fetch fails. Let's start by looking at the fetch call then. 
+The way API calls were handled in the project was in a class, with all API calls. This worked well when we were only dealing with 3 or 4 different, but during the project it went out of control ended up being over 700 lines. 
+So instead I want to create different hooks to handle the API calls. 
 
-we then create a usefetchfeaturedproducts hook (we are faking the 'featured' part, but it is not suported in the api)
+I added a more 'global' fetch hook. I found a good one [here](https://scotch.io/tutorials/create-a-custom-usefetch-react-hook). The plan is then to create more specialized hooks for the API calls from the `useFetch` hook. 
+
+Here is the `useFetchFeaturedProducts` hooks (I am faking the 'featured' part since it is not supported in the API)
 ```
 import useFetch from "./useFetch";
 
@@ -210,9 +207,9 @@ const useFetchFeaturedProducts = () => {
 
 export default useFetchFeaturedProducts;
 ```
-we do the same for the featured roasters fetching -- the hooks are pretty similar so i will skip it here 
+The same if done for the featured roasters (the hooks are pretty similar, so I will skip it here).
 
-our home component now looks like this. 
+The `Home` component now looks like this. 
 ```
 import React from "react";
 import CTAImage from "./home/CTAImage";
@@ -283,7 +280,7 @@ const Home = () => {
 
 export default Home;
 ```
-lets finish the test 
+Now the test can be finished, and it ended up like this. 
 ```
 test("should render error on fetch reject", async () => {
   fetch.mockResponseOnce("", { status: 500 });
@@ -301,11 +298,11 @@ test("should render error on fetch reject", async () => {
 });
 ```
 
-Great -- we now have the "front page" of the application tested. 
+Great, now have the "front page" of the application tested. 
 
-Looking at the home componnet, i think it hhas too many responsibilties so i want to split i up some. 
+Looking at the `Home` component, i think it has too many responsibilties. I want to split i up to smaller components.
 
-I want to put featured roaster  and featured products into separate conponents like this 
+I want to put featured roaster and featured products into separate components like this 
 ```
 import React from "react";
 import Roaster from "../components/roasters/Roaster";
@@ -343,8 +340,7 @@ const FeaturedRoasters = () => {
 export default FeaturedRoasters;
 ```
 
-The products one is very similar so we skip it 
-So now our home component is vastly simlified to this 
+The products one is very similar so I will skip it here. The `Home` component is now simplified to this 
 ```
 import React from "react";
 import CTAImage from "./home/CTAImage";
@@ -369,9 +365,7 @@ const Home = () => {
 export default Home;
 ```
 
-And since it added test before this refactor, i just have to run them again to check everything is in order, which it is :) 
+Since the tests were added before the refactor, I can run them again to check that everything is still working as expected, which it is 🔥. 
+Some might argue for making a more dynamic component for the featured products and the featured roasters since they are pretty similar. However I am not sure that it would benefit to the simplicity of the application. I think this solution is very simple and easy to understand which is, in my opinion, more important than DRYing up the entire application. 
 
-And yes i know -- featured products and featured roaster components are really similiar, why dont use make i dynamic one.. I could, but to what benefit? higher complexity? I think this method is very simple and easy to understand, and i  believe that is more værdifult than everything being dry dry dry... 
-
-I think this is good now, lets pick it up the next post, where will start transforming some of the components to typescript. 
-
+I think this will due for this post! Keep posted for more, where I will continue this refactor and also start migrating to TypeScript!
