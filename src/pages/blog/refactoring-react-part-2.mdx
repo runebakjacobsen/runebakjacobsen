@@ -1,0 +1,65 @@
+---
+title: Refactoring React - Part 2
+path: /refactoring-react-part-2
+date: 2020-01-19
+draft: true
+---
+so next step is converting to typescript! 
+luckily create-react-app have made to super simple to add typescript support to an exisiting project, just by running 
+```
+yarn add typescript @types/node @types/react @types/react-dom @types/jest
+```
+
+i am using the cheatsheet from 
+https://github.com/typescript-cheatsheets/react-typescript-cheatsheet#reacttypescript-cheatsheets 
+
+One of the beatuies about typescript is that it is just like javasript, which means you do not break your entire app by adding the support for it, you can just convert gradually to it. 
+
+However after we cleaned the home component up so thourghully, there is notthing to typecheck, so just altering the delcartion of Home to `const Home: React.FC` is all we need here, but lets go though the componetns that Home renders. 
+
+
+
+CTAImage -- looks like this 
+```
+import React from "react";
+import PropTypes from "prop-types";
+import Button from "../common/Button";
+import { Link } from "react-router-dom";
+
+const CTAImage = ({ heading, paragraph, image }) => {
+  return (
+    <div className="relative flex items-center ">
+      <div className="relative w-full h-full overflow-hidden py-56 md:rounded-lg">
+        <div className="w-10/12 md:w-1/2 mx-auto z-10 relative">
+          <h1 className="text-5xl font-serif text-center leading-none text-white font-bold">
+            {heading}
+          </h1>
+          <p className="text-center mt-4 text-lg text-white">{paragraph}</p>
+          <Link to="/products">
+            <Button title="Shop now" center={true} />
+          </Link>
+        </div>
+        <img
+          className="absolute inset-0 w-full h-full object-cover object-center z-0"
+          src={image}
+          alt=""
+        />
+        <div className="absolute inset-0 w-full h-full bg-gray-900 opacity-50"></div>
+      </div>
+    </div>
+  );
+};
+
+CTAImage.propTypes = {
+  heading: PropTypes.string.isRequired,
+  paragraph: PropTypes.string.isRequired,
+  image: PropTypes.string.isRequired
+};
+
+export default CTAImage;
+
+```
+
+Lets make it typescript :) 
+but hey... we dont have any test for this? lets fix that
+

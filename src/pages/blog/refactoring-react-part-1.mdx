@@ -1,0 +1,371 @@
+---
+title: Refactoring React - Part 1
+path: /refactoring-react-part-1
+date: 2020-02-01
+draft: false
+---
+
+# Refactoring React - Part 1
+
+[Link to the GitHub project.](https://github.com/runebakjacobsen/refactoring-react)
+
+If you haven't read the first post in the series [you can check it here](/blog/refactoring-react-part-0), otherwise long story short - I am refactoring a React project. 
+
+It took me some time to determine where I wanted to begin with the refactor, but I decided to take it easy in the first run and start with a basic component. 
+So I am starting with the `Home` component, which is the index of the page. 
+
+This is how it looks before the refactor.
+```jsx
+import React, { useState, useEffect } from "react";
+import CTAImage from "./home/CTAImage";
+import Roaster from "../components/roasters/Roaster";
+import banner from "../images/brewer.jpg";
+import SingleProduct from "./productsView/SingleProduct";
+import apiService from "../services/apiService";
+
+const Home = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [featuredRoasters, setFeaturedRoasters] = useState([]);
+  useEffect(() => {
+    const getProducts = async () => {
+      const { products } = await apiService.getProducts(4, 0);
+      setFeaturedProducts(products);
+      const { roasters } = await apiService.getAllRoasters(3, 0);
+      setFeaturedRoasters(roasters);
+      setIsLoading(false);
+    };
+    getProducts();
+  }, []);
+
+  return (
+    <div>
+      <CTAImage
+        heading="Sustainable coffee from local roasters"
+        paragraph="Enjoy your coffee freshly brewed, deliveried right to your door"
+        image={banner}
+      />
+      <div className=" mt-10 mb-3">
+        <h2 className="text-2xl md:text-3xl font-serif text-center font-bold">
+          Featured Coffee Roasters
+        </h2>
+      </div>
+      {!isLoading && (
+        <div className="flex -mx-2">
+          {featuredRoasters.map(roaster => (
+            <Roaster key={roaster.id} info={roaster} />
+          ))}
+        </div>
+      )}
+      <div className=" mt-10 mb-3">
+        <h2 className="text-3xl font-serif text-center font-bold">
+          Featured Products
+        </h2>
+      </div>
+      {!isLoading ? (
+        <div className="flex -mx-2">
+          {featuredProducts.map(product => {
+            return <SingleProduct prod={product} key={product.id} />;
+          })}
+        </div>
+      ) : (
+        <p>loading...</p>
+      )}
+    </div>
+  );
+};
+
+export default Home;
+```
+
+Some initial comments about the component. We have some loading state and data state. The first thing that jumps to my eyes is the two conditionals doing the same logic on line 35 and 47. Furthermore the `getProducts` function name is misleading, since it is not only getting products, but also roasters. Additionally we are blocking the render of products and roasters by waiting on both of the API calls in the same `useEffect`.
+
+Let's start the refactor off with some tests! I am using [React Testing Library](https://github.com/testing-library/react-testing-library) for testing and [jest-fetch-mock](jest-fetch-mock) for mocking fetch, since this is my preferred library for testing react. 
+
+## What to test?
+
+First of all I want to test that when the data is being fetched the loading indicator is showing and when the data is fetched it is correctly displayed. Also if the data fetched fails, I want to display an error. 
+
+The application uses all kinds of different loading messages, so I want to generalize this to a common loading indicator used across the application. To do this I made a `Loading` component that shows a spinner made with [this css](https://www.30secondsofcode.org/css/s/donut-spinner/).
+
+```
+import React from "react";
+
+const Loading = () => {
+  return <div className="loading" data-testid="loading"></div>;
+};
+
+export default Loading;
+```
+
+Great, now back to the tests. Here is what I did for the first test case, where we want to show the loading indicator and then the fetched data.
+
+```
+test("should render roasters and products", async () => {
+  fetch.mockResponseOnce(JSON.stringify(mockProducts));
+  fetch.mockResponseOnce(JSON.stringify(mockRoasters));
+  const { queryByTestId, getAllByTestId } = render(
+    <MemoryRouter>
+      <Home />
+    </MemoryRouter>
+  );
+
+  expect(queryByTestId("loading")).toBeTruthy();
+
+  const cardTitles = await waitForElement(() => getAllByTestId("card-name"));
+  expect(queryByTestId("loading")).toBeFalsy();
+
+  // Check roaster data is correct
+  expect(cardTitles.length).toBe(3);
+
+  expect(cardTitles[0].textContent).toBe(mockRoasters.data[0].name);
+  expect(getAllByTestId("card-address")[0].textContent).toBe(
+    mockRoasters.data[0].address.city
+  );
+  expect(getAllByTestId("card-link")[0].getAttribute("href")).toBe(
+    "/roaster/" + mockRoasters.data[0].id
+  );
+
+  // Check product data is correct
+  const singleProductTitles = await waitForElement(() =>
+    getAllByTestId("single-product-name")
+  );
+  expect(singleProductTitles.length).toBe(4);
+  expect(singleProductTitles[0].textContent).toBe(mockProducts.data[0].name);
+  expect(getAllByTestId("single-product-link")[0].getAttribute("href")).toBe(
+    "/product/" + mockProducts.data[0].id
+  );
+  expect(getAllByTestId("single-product-roastername")[0].textContent).toBe(
+    `Roasted by ${mockProducts.data[0].roasterName}`
+  );
+  expect(getAllByTestId("single-product-price")[0].textContent).toBe(
+    `${mockProducts.data[0].price.toFixed(2)} kr`
+  );
+});
+```
+
+First, I am mocking the fetch calls with some mock data, I am rendering the component. You can see the first "expectation" on line 10, where I am expecting that the loading indicator is showing. Then I am waiting for the data from the fetch, and checking that the loading indicator is removed and that the data is corresponding with what was in the mocked data.
+
+And now comes the beauty of tests - An error was uncovered! There was a type error in the `SingleProduct` component. The `propTypes` of the component were not setup correctly. It only consisted of this
+```
+SingleProduct.propTypes = {
+  prod: PropTypes.objectOf
+};
+```
+Since the keys are known ahead of time, this proptype serves better as a `shape`, so I refactored it to this
+```
+SingleProduct.propTypes = {
+  prod: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    price: PropTypes.number.isRequired,
+    roasterName: PropTypes.string.isRequired,
+    imageData: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+      PropTypes.bool
+    ]),
+    id: PropTypes.number.isRequired
+  })
+};
+```
+
+On to the next test, I wanted to ensure that an error is displayed if the fetch fails. For this I want to wait for an error element in the test, but the Home component does not display errors if the fetch fails. Let's start by looking at the fetch call then. 
+The way API calls were handled in the project was in a class, with all API calls. This worked well when we were only dealing with 3 or 4 different, but during the project it went out of control ended up being over 700 lines. 
+So instead I want to create different hooks to handle the API calls. 
+
+I added a more 'global' fetch hook. I found a good one [here](https://scotch.io/tutorials/create-a-custom-usefetch-react-hook). The plan is then to create more specialized hooks for the API calls from the `useFetch` hook. 
+
+Here is the `useFetchFeaturedProducts` hooks (I am faking the 'featured' part since it is not supported in the API)
+```
+import useFetch from "./useFetch";
+
+const useFetchFeaturedProducts = () => {
+  const params = new URLSearchParams({
+    PageSize: 4,
+    PageNumber: 0
+  });
+  const url = `${process.env.REACT_APP_API_URL}/coffee?${params.toString()}`;
+
+  const options = {
+    method: "GET",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json"
+    }
+  };
+
+  const { response, error, isLoading } = useFetch(url, options);
+
+  let featuredProducts = null;
+
+  if (response) {
+    featuredProducts = response.data;
+  }
+
+  return { featuredProducts, error, isLoading };
+};
+
+export default useFetchFeaturedProducts;
+```
+The same if done for the featured roasters (the hooks are pretty similar, so I will skip it here).
+
+The `Home` component now looks like this. 
+```
+import React from "react";
+import CTAImage from "./home/CTAImage";
+import Roaster from "../components/roasters/Roaster";
+import banner from "../images/brewer.jpg";
+import SingleProduct from "./productsView/SingleProduct";
+import Error from "./Error";
+import Loading from "./Loading";
+import useFetchFeaturedProducts from "../hooks/useFetchFeaturedProducts";
+import useFetchFeaturedRoasters from "../hooks/useFetchFeaturedRoasters";
+
+const Home = () => {
+  const {
+    featuredRoasters,
+    error: featuredRoastersError,
+    isLoading: featuredRoastersIsLoading
+  } = useFetchFeaturedRoasters();
+  const {
+    featuredProducts,
+    error: featuredProductsError,
+    isLoading: featuredProductsIsLoading
+  } = useFetchFeaturedProducts();
+
+  return (
+    <div>
+      <CTAImage
+        heading="Sustainable coffee from local roasters"
+        paragraph="Enjoy your coffee freshly brewed, deliveried right to your door"
+        image={banner}
+      />
+      <div className=" mt-10 mb-3">
+        <h2 className="text-2xl md:text-3xl font-serif text-center font-bold">
+          Featured Coffee Roasters
+        </h2>
+      </div>
+      {!featuredRoastersIsLoading && !featuredRoastersError ? (
+        <div className="flex -mx-2">
+          {featuredRoasters.map(roaster => (
+            <Roaster key={roaster.id} info={roaster} />
+          ))}
+        </div>
+      ) : (
+        <Loading />
+      )}
+      {featuredRoastersError && (
+        <Error message={featuredRoastersError.message} />
+      )}
+      <div className=" mt-10 mb-3">
+        <h2 className="text-3xl font-serif text-center font-bold">
+          Featured Products
+        </h2>
+      </div>
+      {!featuredProductsIsLoading && !featuredProductsError ? (
+        <div className="flex -mx-2">
+          {featuredProducts.map(product => {
+            return <SingleProduct prod={product} key={product.id} />;
+          })}
+        </div>
+      ) : (
+        <Loading />
+      )}
+      {featuredProductsError && (
+        <Error message={featuredProductsError.message} />
+      )}
+    </div>
+  );
+};
+
+export default Home;
+```
+Now the test can be finished, and it ended up like this. 
+```
+test("should render error on fetch reject", async () => {
+  fetch.mockResponseOnce("", { status: 500 });
+  fetch.mockResponseOnce("", { status: 500 });
+
+  const { queryAllByTestId, getAllByTestId, debug } = render(
+    <MemoryRouter>
+      <Home />
+    </MemoryRouter>
+  );
+
+  expect(queryAllByTestId("loading")).toBeTruthy();
+  const error = await waitForElement(() => getAllByTestId("error"));
+  expect(error.length).toBe(2);
+});
+```
+
+Great, now have the "front page" of the application tested. 
+
+Looking at the `Home` component, i think it has too many responsibilties. I want to split i up to smaller components.
+
+I want to put featured roaster and featured products into separate components like this 
+```
+import React from "react";
+import Roaster from "../components/roasters/Roaster";
+import useFetchFeaturedRoasters from "../hooks/useFetchFeaturedRoasters";
+import Error from "./Error";
+import Loading from "./Loading";
+
+const FeaturedRoasters = () => {
+  const { featuredRoasters, error, isLoading } = useFetchFeaturedRoasters();
+
+  if (error) {
+    return <Error message={error.message} />;
+  }
+
+  if (isLoading) {
+    return <Loading />;
+  }
+
+  return (
+    <>
+      <div className=" mt-10 mb-3">
+        <h2 className="text-2xl md:text-3xl font-serif text-center font-bold">
+          Featured Coffee Roasters
+        </h2>
+      </div>
+      <div className="flex -mx-2">
+        {featuredRoasters.map(roaster => (
+          <Roaster key={roaster.id} info={roaster} />
+        ))}
+      </div>
+    </>
+  );
+};
+
+export default FeaturedRoasters;
+```
+
+The products one is very similar so I will skip it here. The `Home` component is now simplified to this 
+```
+import React from "react";
+import CTAImage from "./home/CTAImage";
+import banner from "../images/brewer.jpg";
+import FeaturedRoasters from "./FeaturedRoasters";
+import FeaturedProducts from "./FeaturedProducts";
+
+const Home = () => {
+  return (
+    <div>
+      <CTAImage
+        heading="Sustainable coffee from local roasters"
+        paragraph="Enjoy your coffee freshly brewed, deliveried right to your door"
+        image={banner}
+      />
+      <FeaturedRoasters />
+      <FeaturedProducts />
+    </div>
+  );
+};
+
+export default Home;
+```
+
+Since the tests were added before the refactor, I can run them again to check that everything is still working as expected, which it is 🔥. 
+Some might argue for making a more dynamic component for the featured products and the featured roasters since they are pretty similar. However I am not sure that it would benefit to the simplicity of the application. I think this solution is very simple and easy to understand which is, in my opinion, more important than DRYing up the entire application. 
+
+I think this will due for this post! Keep posted for more, where I will continue this refactor and also start migrating to TypeScript!
