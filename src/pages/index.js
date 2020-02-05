@@ -12,7 +12,7 @@ export const query = graphql`
   query IndexQuery {
     allMdx(
       limit: 10
-      sort: { fields: frontmatter___date }
+      sort: { fields: frontmatter___date, order: DESC }
       filter: { frontmatter: { draft: { ne: true } } }
     ) {
       edges {
