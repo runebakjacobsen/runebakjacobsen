@@ -216,3 +216,447 @@ const FeaturedRoasters: React.FC = () => {
   );
 };
 ```
+
+I could alreadt see in these two hooks that they shared some types and i had duplicate code. I therefore moved the interfaces to a seperate file called `Interfaces.ts` such that I can just import the interfaces from this file around the application. 
+
+Great, with the FeaturedRoasters component now tested and converted to typescript, next step is FeaturedProducts. Like the previous blog post, I will skip this in the post since it is very similar to FeaturedRoasters componnet. 
+
+I have added an extra test, that checks that an error is displayed when the result from the api is empty, but does not result in an error. 
+```
+test("should render no results", async () => {
+  const emptyResponse = {
+    data: [],
+    amountOfPages: 10
+  };
+
+  fetch.mockResponseOnce(JSON.stringify(emptyResponse));
+
+  const { queryAllByTestId, getAllByTestId } = render(
+    <MemoryRouter>
+      <FeaturedProducts />
+    </MemoryRouter>
+  );
+
+  expect(queryAllByTestId("loading")).toBeTruthy();
+
+  const error = await waitForElement(() => getAllByTestId("error"));
+
+  expect(error.length).toBe(1);
+
+  expect(error[0].getElementsByTagName("p")[0].textContent).toEqual(
+    "No results"
+  );
+});
+```
+
+during the refactoring of `useFetchFeaturedProducts` I uncovered that i would get the wrong type, namely roaster, since the setup of usefetch was set to a fixed type of the interface Roaster. I do not want to make multiple hooks based on the type, so i reached for generics and refactored the hook to this 
+
+```
+import { useState, useEffect } from "react";
+import { Error, ApiResponse } from "../Interfaces";
+
+type returnType<T> = {
+  response: null | ApiResponse<T>;
+  error: null | Error;
+  isLoading: boolean;
+};
+
+function useFetch<T>(url: string, options: object): returnType<T> {
+  const [response, setResponse] = useState(null);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async (): Promise<void> => {
+      setIsLoading(true);
+      try {
+        const res = await fetch(url, options);
+        const json = await res.json();
+        setResponse(json);
+        setIsLoading(false);
+      } catch (error) {
+        setError(error);
+      }
+    };
+    fetchData();
+  }, []);
+  return { response, error, isLoading };
+}
+
+export default useFetch;
+
+
+```
+
+Now i just need to specify the type when calling it, like this `useFetch<Product>(url, options);`
+
+Both of the Featured component uses different child components. I want to refactor these next. The featuredRoasters uses a Roaster component. this currently looks like this 
+
+```
+import React from "react";
+import smileys from "./Smileys";
+import default_roaster_img from "../../images/roaster-logo.jpg";
+import Card from "../home/Card";
+import PropTypes from "prop-types";
+
+export default function Roaster({ info }) {
+  const { id, name, address, description, smiley, logoImageData } = info;
+
+  const { city } = address;
+
+  const test = new Blob([logoImageData]).size;
+  const logoImage =
+    test > 100
+      ? `data:image/jpeg;base64,${logoImageData}`
+      : default_roaster_img;
+
+  return (
+    <Card
+      name={name}
+      city={city}
+      desc={description}
+      smiley={smileys[smiley]}
+      logo={logoImage}
+      link={"/roaster/" + id}
+    />
+  );
+}
+
+Roaster.propTypes = {
+  info: PropTypes.object.isRequired
+};
+
+```
+
+I want to start out with the test for this. This a very simple test, since I just want to ensure that the props are rendered correctly. 
+
+the logo image blob test is not reliable, testing for blob is not good to do on length of the string.. Instead we can check for `instanceof Blob`. This did not work as expected though.. Every string given to the blob will pass a valid blob. Instead i will check that the blob size is over 0, since an empty string will result in this and we must expect if there exist a logo it is a valid blob. 
+Furthermore we test that the default picture will display if there is not a logo and that it will give an console error if there is not given the required props. this uncovered an error, namely that the component will still render. However this was an easy fix, namely just adding an if checking that the props are there. 
+
+
+the tests ended in this 
+
+```
+import { render, cleanup } from "@testing-library/react";
+import Roaster from "./Roaster";
+import React from "react";
+import { MemoryRouter } from "react-router-dom";
+import { mockRoasters } from "../../utils/mockData";
+import smileys from "./Smileys";
+
+afterEach(() => {
+  cleanup();
+  console.error.mockClear();
+});
+
+console.error = jest.fn();
+
+test("should render props correctly", () => {
+  const mockRoaster = mockRoasters.data[0];
+
+  const { getByTestId, getByAltText } = render(
+    <MemoryRouter>
+      <Roaster roaster={mockRoaster} />
+    </MemoryRouter>
+  );
+
+  const cardTitle = getByTestId("card-name");
+  const cardAddress = getByTestId("card-address");
+  const cardDescription = getByTestId("card-description");
+  const cardLink = getByTestId("card-link");
+  const cardSmiley = getByAltText("smiley");
+  const cardLogo = getByAltText(`${mockRoaster.name} logo`);
+
+  expect(cardTitle.textContent).toBe(mockRoaster.name);
+  expect(cardAddress.textContent).toBe(mockRoaster.address.city);
+  expect(cardDescription.textContent).toBe(mockRoaster.description);
+  expect(cardLink.getAttribute("href")).toBe("/roaster/" + mockRoaster.id);
+  expect(cardSmiley.getAttribute("src")).toBe(smileys[mockRoaster.smiley]);
+  expect(cardLogo.getAttribute("src")).toBe(
+    `data:image/jpeg;base64,${mockRoaster.logoImageData}`
+  );
+});
+
+test("should show default logo when no logo present", () => {
+  const mockRoaster = mockRoasters.data[1];
+
+  const { getByAltText } = render(
+    <MemoryRouter>
+      <Roaster roaster={mockRoaster} />
+    </MemoryRouter>
+  );
+  const cardLogo = getByAltText(`${mockRoaster.name} logo`);
+
+  expect(cardLogo.getAttribute("src")).toBe("roaster-logo.jpg");
+});
+
+test("should console error when not receiving props", () => {
+  render(
+    <MemoryRouter>
+      <Roaster />
+    </MemoryRouter>
+  );
+  expect(console.error).toBeCalledTimes(1);
+});
+
+```
+
+Great! now to typescript and making the component prettier :) 
+first of, we add the type to the roaster parameter. Here i will use the same interface as the used in the fetchting one. Now i will need to add the right keys to the interface, since i started out by only adding the id, and i should also fix the props type, since a required object, doesnt say much, and we know the shape of the object already, we should make it a shape. 
+Now i run into an issue! my interface is called roaster and so is my component. Going though the typescript guidelines, i can see it is common practice to postfix it with config. So my interfaces will going forward be postfixed with config. 
+
+After cleaning up the component and converting it, it looks like this 
+
+```
+type RoasterProps = {
+  roaster: undefined | RoasterConfig;
+};
+
+const Roaster: React.FC<RoasterProps> = ({ roaster }: RoasterProps) => {
+  if (!roaster) {
+    return null;
+  }
+
+  const { id, name, address, description, smiley, logoImageData } = roaster;
+
+  const { city } = address;
+
+  let logo = `data:image/jpeg;base64,${logoImageData}`;
+  if (!logoImageData) {
+    logo = defaultRoasterImg;
+  }
+
+  return (
+    <Card
+      name={name}
+      city={city}
+      desc={description}
+      smiley={smileys[smiley]}
+      logo={logo}
+      link={"/roaster/" + id}
+    />
+  );
+};
+
+export default Roaster;
+
+Roaster.propTypes = {
+  roaster: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    address: PropTypes.shape({
+      city: PropTypes.string.isRequired
+    }).isRequired,
+    description: PropTypes.string.isRequired,
+    smiley: PropTypes.number.isRequired,
+    logoImageData: PropTypes.string.isRequired
+  }).isRequired
+};
+
+```
+
+Now to the card that is used in the roaster. After deeper consideration this is unnesscart compoennt, Or rather, the roaster ccomponent as it is now, can easily be refacotred into a simple component containing the card. So we refactor the roaster again. I actually think this really simplified the structure greatly, now it looks like the follwong 
+
+```
+import React from "react";
+import smileys from "./Smileys";
+import { RoasterConfig } from "../../Interfaces";
+import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
+import { mapPin, leftArrow } from "../../Icons";
+import Base64Img from "../common/Base64Img";
+
+type RoasterProps = {
+  roaster: undefined | RoasterConfig;
+};
+
+const Roaster: React.FC<RoasterProps> = ({ roaster }: RoasterProps) => {
+  if (!roaster) {
+    return null;
+  }
+
+  const { id, name, address, description, smiley, logoImageData } = roaster;
+
+  return (
+    <div className="w-full md:w-1/3 px-2 mb-6">
+      <div className="rounded shadow-md border">
+        <Base64Img
+          imageData={logoImageData}
+          className="w-1/2 mx-auto"
+          alt={`${name} logo`}
+        />
+        <div className="px-6 py-4 flex">
+          <div className="w-1/2">
+            <h4
+              data-testid="card-name"
+              className="font-bold font-serif text-xl mb-2"
+            >
+              {name}
+            </h4>
+            <p className="mb-2" data-testid="card-address">
+              {mapPin}
+              {address.city}
+            </p>
+            <p className="text-gray-700 text-sm" data-testid="card-description">
+              {description}
+            </p>
+            <Link
+              to={`roaster/${id}`}
+              className="inline-flex items-center hover:underline text-yellow-900"
+              data-testid="card-link"
+            >
+              See more
+              {leftArrow}
+            </Link>
+          </div>
+          <div className="w-1/2 my-auto">
+            <img src={smileys[smiley]} alt="smiley" className="ml-auto h-10" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Roaster;
+
+Roaster.propTypes = {
+  roaster: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    name: PropTypes.string.isRequired,
+    address: PropTypes.shape({
+      city: PropTypes.string.isRequired
+    }).isRequired,
+    description: PropTypes.string.isRequired,
+    smiley: PropTypes.number.isRequired,
+    logoImageData: PropTypes.string.isRequired
+  }).isRequired
+};
+
+```
+
+Great! lets move on to single product 
+
+I will skip the tests here since they are similar in behavior to the once for the roaster :) 
+
+convering to typescript
+it uses a custom hook called useHover. This needs to be converted also. 
+this was actually pretty easy and ended up like this 
+
+```
+import React from "react";
+
+export default function useHover(): [
+  React.RefObject<HTMLDivElement> | null,
+  boolean
+] {
+  const [value, setValue] = React.useState<boolean>(false);
+
+  const ref = React.useRef<HTMLDivElement | null>(null);
+
+  const handleMouseEnter = (): void => setValue(true);
+  const handleMouseLeave = (): void => setValue(false);
+
+  React.useEffect(
+    () => {
+      const node = ref.current;
+      if (node) {
+        node.addEventListener("mouseenter", handleMouseEnter);
+        node.addEventListener("mouseleave", handleMouseLeave);
+
+        return (): void => {
+          node.removeEventListener("mouseenter", handleMouseEnter);
+          node.removeEventListener("mouseleave", handleMouseLeave);
+        };
+      }
+    },
+    [] // Recall only if ref changes
+  );
+
+  return [ref, value];
+}
+
+```
+
+Other than that, this component was easy to make to typescript! we already had the product type interface, and from that we could easily transform the component, it ended like this 
+
+```
+import React from "react";
+import { Link } from "react-router-dom";
+import useHover from "../../hooks/useHover";
+import Button from "../common/Button";
+import Base64Img from "../common/Base64Img";
+import PropTypes from "prop-types";
+import { convertToDanishCurrency } from "../../utils/helpers";
+import { ProductConfig } from "../../Interfaces";
+
+type SingleProductProps = {
+  product: null | ProductConfig;
+};
+
+const SingleProduct: React.FC<SingleProductProps> = ({
+  product
+}: SingleProductProps) => {
+  const [hoverRef, isHovered] = useHover();
+
+  if (!product) {
+    return null;
+  }
+
+  return (
+    <div className="w-full md:w-1/3 px-2 mb-6" ref={hoverRef}>
+      <div className="pb-2 shadow rounded relative">
+        <Link to={"/product/" + product.id} data-testid="single-product-link">
+          <Base64Img
+            imageData={product.imageData}
+            alt={product.name + " product"}
+          />
+          <div className="px-4">
+            <p
+              className="text-xl italic text-gray-800 capitalize font-serif font-bold"
+              data-testid="single-product-name"
+            >
+              {product.name}
+            </p>
+            <p
+              className="text-xs text-gray-600 italic"
+              data-testid="single-product-roastername"
+            >
+              Roasted by {product.roasterName}
+            </p>
+            <p
+              className="font-black text-lg font-serif"
+              data-testid="single-product-price"
+            >
+              {convertToDanishCurrency(product.price)}
+            </p>
+          </div>
+          {isHovered && (
+            <div className="flex items-center  absolute inset-0 w-full h-full">
+              <div className="z-0 rounded absolute w-full h-full bg-yellow-900 opacity-50"></div>
+              <div className="w-full z-10">
+                <Button title="Details" center={true} />
+              </div>
+            </div>
+          )}
+        </Link>
+      </div>
+    </div>
+  );
+};
+
+export default SingleProduct;
+
+SingleProduct.propTypes = {
+  product: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    price: PropTypes.number.isRequired,
+    roasterName: PropTypes.string.isRequired,
+    imageData: PropTypes.string.isRequired,
+    id: PropTypes.string.isRequired
+  }).isRequired
+};
+
+```
+
+We are now done with home and all the childs
