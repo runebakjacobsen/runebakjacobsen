@@ -1,0 +1,33 @@
+---
+title: Today I Learned 15-04-2020
+path: /til-15-04-2020
+date: 2020-04-15
+draft: false
+---
+
+I want to try to document what I learn. So here it goes 🔥
+
+## Today I Learned
+
+- How to use filters in tododist 
+- How to make redirects with Gatsbyjs in Netlify
+- That the wpgraphql polylang plugin provides a translation field on a page
+
+### How to use filters in tododist 
+
+These make it easy for my to.. yeah filter my tasks 😁. It is really easy, all that is needed is some boolean logic really! So for instance is I wnat to filter the tasks that are overdue and priority 1 I can make the filter logic be `p1 & overdue`. Really easy and powerful plus it makes it faster to get an overview!
+
+### Redirects with Gatsbyjs and Netlify
+
+I found that I needed to make some redirects in a project I am developing. Netilfy to the rescue! There are various possiblities bt I ended up with a `_redirects` file in my static folder in the gatsby project. 
+This makes me able to just supply the old url and the new like so: 
+
+```
+/oldurl    /newurl 301
+```
+
+And yes you can determine the status code as well, like I have done with the 301 above. 
+
+###  That the wpgraphql polylang plugin provides a translation field on a page
+
+I am making a gatsby site with wpgraphql backend. The wordpress site uses polylang. The polylang wpgraphql plugin provide a translation field on the page. With this i can get the tranlated pages slug, which means I can always redirect the user to the correct page if they are on a different language, and I can even hide the language selector if there isn't a translation so the user doesn't just get redirected to the frontpage. Really nice stuff!
