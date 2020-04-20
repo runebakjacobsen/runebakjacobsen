@@ -1,0 +1,12 @@
+---
+title: Today I Learned 19-04-2020
+path: /til-19-04-2020
+date: 2020-04-19
+draft: false
+---
+
+Today i found out that preconnecting to some of the scripts that are needed on a website can improve load performance. These scripts are for instance Google Analytics, and added a link with the relation preconnect to the source. 
+It means that instead of waiting for the script contents when seeing it we can tell the browser that we inted to connect to this source so whenever you have the time you can connect to it. Really cool!
+
+Also I found that the OpenGrahp metatags url (og:url) is the same as canonical url. I found this out since I had a problem with the LinkedIn preview of a website however the preview looked fine everywhere else. After some diggig I could see thtat LinkedIn found the canonical url and redirected to the frontpage and previewed that. The cacnonical was correctly set but the og:url was set to the frontpage which was casuing the preview to be of the frontpage instead of a blogpost. 
+ 
