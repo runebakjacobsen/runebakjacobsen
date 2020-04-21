@@ -1,5 +1,5 @@
 ---
-path: til-20-04-2020
+path: /til-20-04-2020
 date: 2020-04-20T07:02:49.352Z
 title: Today I Learned 20-04-2020
 ---
