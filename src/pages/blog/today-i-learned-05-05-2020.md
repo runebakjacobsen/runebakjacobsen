@@ -1,5 +1,5 @@
 ---
-path: today-i-learned 05-05-2020
+path: /today-i-learned 05-05-2020
 date: 2020-05-05T08:05:29.639Z
 title: Today I Learned 05-05-2020
 ---
