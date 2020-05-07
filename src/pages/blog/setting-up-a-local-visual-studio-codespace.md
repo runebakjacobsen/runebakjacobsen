@@ -1,5 +1,5 @@
 ---
-path: local-visual-studio-codespace
+path: /local-visual-studio-codespace
 date: 2020-05-07T13:30:11.339Z
 title: Setting up a Local Visual Studio Codespace
 ---
