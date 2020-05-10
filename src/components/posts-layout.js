@@ -4,6 +4,7 @@ import PropTypes from "prop-types"
 import { MDXProvider } from "@mdx-js/react"
 import CodeBlock from "../components/code-block"
 import { Highlight } from "./highlight"
+import SEO from "./seo"
 
 const components = {
   pre: CodeBlock,
@@ -21,6 +22,10 @@ const PostsLayout = ({ pageContext, children }) => {
   return (
     <MDXProvider components={components}>
       <Layout>
+        <SEO
+          description={pageContext.frontmatter.metadesc}
+          title={pageContext.frontmatter.metatitle}
+        />
         <section>
           <article>
             <h1>

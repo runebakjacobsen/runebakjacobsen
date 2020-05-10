@@ -13,7 +13,19 @@ collections:
     identifier_field: path
     fields:
       - { name: path, label: Path }
-      - { name: draft, label: Draft, widget: Boolean }
+      - { name: draft, label: Draft, widget: boolean, default: false }
       - { name: date, label: Date, widget: datetime }
       - { name: title, label: Title }
       - { name: body, label: Body, widget: markdown }
+      - {
+          name: "metatitle",
+          label: "Meta Title",
+          widget: "string",
+          pattern: [".{0,78}", "Max length 78 characters"],
+        }
+      - {
+          name: "metadesc",
+          label: "Meta Description",
+          widget: "text",
+          pattern: [".{0,160}", "Max length 160 characters"],
+        }
