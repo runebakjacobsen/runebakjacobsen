@@ -660,3 +660,185 @@ SingleProduct.propTypes = {
 ```
 
 We are now done with home and all the childs
+
+
+Now to a fun one. The products page. Here the "parent" component is `ProductList`, that deals with a lot of different state, and many ersponsibilities. You can see it here
+
+```
+import React, { useState, useEffect, useCallback } from "react";
+import Filters from "./Filters";
+import useFilterCheckbox from "../../hooks/useFilterCheckbox";
+import apiServiceInstance from "../../services/apiService";
+import { isEqualObjects } from "../../utils/helpers";
+import Button from "../common/Button";
+import DisplayProducts from "./DisplayProducts";
+import usePrevious from "../../hooks/usePrevious";
+import Select from "../common/Select";
+
+export default function ProductList() {
+  const [products, setProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const { selectedFilters, handleFilterCheckbox } = useFilterCheckbox();
+  const prevSelectedFilters = usePrevious(selectedFilters);
+  const [search, setSearch] = useState("");
+  const [sortChoice, setSortChoice] = useState("");
+
+  const sortOptions = [
+    {
+      real: "price",
+      title: "Price - Low to high"
+    },
+    {
+      real: "priceDsc",
+      title: "Price - High to low"
+    },
+    {
+      real: "name",
+      title: "Name - A-Z"
+    },
+    {
+      real: "nameDsc",
+      title: "Name - Z-A"
+    },
+    {
+      real: "sustainDsc",
+      title: "Sustainablity - Best to worst"
+    },
+    {
+      real: "sustain",
+      title: "Sustainablity - Worst to best"
+    },
+    {
+      real: "reviewDsc",
+      title: "Score - Best to worst"
+    },
+    {
+      real: "review",
+      title: "Score - Worst to best"
+    }
+  ];
+
+  const getPageNumber = useCallback(() => {
+    if (isEqualObjects(prevSelectedFilters, selectedFilters)) {
+      return currentPage;
+    }
+    return 0;
+  }, [prevSelectedFilters, selectedFilters, currentPage]);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const pageNumber = getPageNumber();
+      const { products, totalPages } = await apiServiceInstance.getProducts(
+        10,
+        pageNumber,
+        selectedFilters,
+        search,
+        sortChoice
+      );
+
+      setTotalPages(totalPages);
+      if (pageNumber !== 0) {
+        setProducts(prev => [...prev, ...products]);
+      } else {
+        setProducts(products);
+      }
+      setLoading(false);
+    };
+    fetchProducts();
+  }, [
+    selectedFilters,
+    currentPage,
+    prevSelectedFilters,
+    getPageNumber,
+    search,
+    sortChoice
+  ]);
+
+  const nextPage = () => {
+    setCurrentPage(prev => prev + 1);
+  };
+
+  const handleSearch = e => {
+    if (e.key === "Enter") {
+      setSearch(e.target.value);
+    }
+  };
+
+  const handleSort = e => {
+    setSortChoice(e.target.value);
+  };
+
+  const isLastPage = totalPages === currentPage;
+
+  if (loading) return <p>Loading..</p>;
+
+  return (
+    <div>
+      <div>
+        <div className="flex justify-between mb-4 px-4 md:px-0 -mx-2 md:mx-0">
+          <div className="w-1/2 md:w-1/4 mr-2">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="search"
+            >
+              Search
+            </label>
+            <input
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              placeholder="Search for product"
+              onKeyDown={handleSearch}
+              id="search"
+              maxLength="50"
+              max={50}
+            />
+          </div>
+
+          <div className="w-1/2 md:w-1/4 ml-2">
+            <Select
+              title="Order by"
+              id="filter"
+              options={sortOptions.map(x => ({
+                title: x.title,
+                value: x.real
+              }))}
+              onChange={handleSort}
+              selected={sortChoice}
+            />
+          </div>
+        </div>
+        <div className="flex">
+          <div className="hidden md:block w-1/6">
+            <Filters
+              handleFilterCheckbox={handleFilterCheckbox}
+              selectedFilters={selectedFilters}
+            />
+          </div>
+          <div className="w-full md:w-5/6 px-2">
+            <DisplayProducts products={products} />
+            {!isLastPage && (
+              <Button onClick={nextPage} title="Show more products" />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+```
+
+We have a lot that needs to be tested here, so lets begin
+
+first off we need an loading element to wait on. Right now, it is just a string loading. Lets change that to the loading component we made. 
+after that was done, the first error was found. After i refactored the singleproduct component, the prop is called product instead of prod. This was not changed in this component, however it is an easy fix. 
+During the test I had a lot of problems with the mocking of fetch that kept saying 
+    FetchError: invalid json response body at  reason: Unexpected end of JSON input
+
+I could not really find the reason, but I think the issue is that it actually calls the api twice. So lets just make it use a hook and get over with it. 
+
+i started by makig the hook just for the products- When incoprrating search, i ran into an issue uncvered by my tests. when sesaarhcing and then clearing the field, the search result would be the first element returned again, since the result is appended in the search. 
+
+next is sort 
+  

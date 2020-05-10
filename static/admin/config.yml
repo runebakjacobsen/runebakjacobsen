@@ -10,8 +10,10 @@ collections:
     label: "Blog"
     folder: src/pages/blog
     create: true
+    identifier_field: path
     fields:
       - { name: path, label: Path }
+      - { name: draft, label: Draft, widget: Boolean }
       - { name: date, label: Date, widget: datetime }
       - { name: title, label: Title }
       - { name: body, label: Body, widget: markdown }
