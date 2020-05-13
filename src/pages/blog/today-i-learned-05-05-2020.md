@@ -1,7 +1,11 @@
 ---
-path: /today-i-learned 05-05-2020
+path: /today-i-learned-05-05-2020
+draft: false
 date: 2020-05-05T08:05:29.639Z
 title: Today I Learned 05-05-2020
+metatitle: "TIL: WPGraphQL doesn't support is_home()"
+metadesc: However it is a quickfix to solve it! A function to register the type
+  will solve it.
 ---
 Today I found that [WPGraphQL](https://www.wpgraphql.com/) don't support the `is_home()` functionality built-in to WordPress. It was however a quickfix with the following function: 
 
