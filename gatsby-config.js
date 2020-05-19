@@ -1,8 +1,9 @@
 module.exports = {
   siteMetadata: {
-    title: `Rune Bak Jacobsen`,
+    title: `Rune Bak`,
     description: ``,
     author: `@runebakjacobsen`,
+    siteUrl: "https://runebak.com",
   },
   plugins: [
     `gatsby-plugin-react-helmet`,
@@ -18,8 +19,8 @@ module.exports = {
     {
       resolve: `gatsby-plugin-manifest`,
       options: {
-        name: `Rune Bak Jacobsen`,
-        short_name: `RBJ`,
+        name: `Rune Bak`,
+        short_name: `RB`,
         start_url: `/`,
         background_color: `#FF8C00`,
         theme_color: `#FF8C00`,
@@ -68,6 +69,9 @@ module.exports = {
       },
     },
     `gatsby-plugin-netlify-cms`,
+    {
+      resolve: "gatsby-plugin-sitemap",
+    },
     // this (optional) plugin enables Progressive Web App + Offline functionality
     // To learn more, visit: https://gatsby.dev/offline
     // `gatsby-plugin-offline`,
