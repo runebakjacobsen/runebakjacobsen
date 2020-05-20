@@ -2,6 +2,7 @@ import { createGlobalStyle } from "styled-components"
 import { normalize } from "polished"
 import { above } from "./utilities/breakpoints"
 import { dom } from "@fortawesome/fontawesome-svg-core"
+import greenDustAndScracthes from "./images/greenDustAndScratches.png"
 
 const GlobalStyle = createGlobalStyle`
     ${normalize()}
@@ -35,6 +36,7 @@ const GlobalStyle = createGlobalStyle`
           sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
+        background-image: url(${greenDustAndScracthes});
     }
     button, input, optgroup, select, textarea {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
