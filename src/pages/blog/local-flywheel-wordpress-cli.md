@@ -1,5 +1,5 @@
 ---
-path: local-flywheel-wordpress-cli
+path: /local-flywheel-wordpress-cli
 draft: true
 date: 2021-02-06T17:09:35.175Z
 title: Start Local without any clicks
