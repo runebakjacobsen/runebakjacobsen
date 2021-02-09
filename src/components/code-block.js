@@ -14,6 +14,7 @@ const Pre = styled.pre`
   text-align: left;
   margin: 1em 0;
   padding: 0.5em;
+  overflow-y: scroll;
 `
 
 export default ({ children }) => {

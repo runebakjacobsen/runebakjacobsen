@@ -41,7 +41,9 @@
     "styled-components": "^5.1.0"
   },
   "devDependencies": {
-    "prettier": "^2.0.5"
+    "eslint": "^6.8.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "prettier": "^2.2.1"
   },
   "keywords": [
     "gatsby"

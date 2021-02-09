@@ -30,11 +30,9 @@ Header.defaultProps = {
 
 const HeaderWrapper = styled.header`
   border-bottom: 6px solid darkorange;
-  background: #1a202c;
-  padding: 1em;
-  font-size: 1.125em;
-  color: #fff;
-  margin-bottom: 2rem;
+  padding: 1rem;
+  font-size: 1.125rem;
+
 
   nav {
     display: none;
@@ -47,7 +45,7 @@ const HeaderWrapper = styled.header`
   }
 
   a {
-    margin-left: 1em;
+    margin-left: 1rem;
     border: none;
   }
 

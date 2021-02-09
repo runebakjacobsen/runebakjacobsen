@@ -30,11 +30,9 @@ const BlogPage = ({ data }) => (
   <Layout hero={{ title: "Blog" }}>
     <SEO title="Blog" />
     <section>
-      <h1>
-        <Highlight>Recent Posts</Highlight>
-      </h1>
+      <h1>Recent Posts</h1>
       {data.allMdx.edges.length > 0 ? (
-        data.allMdx.edges.map(edge => (
+        data.allMdx.edges.map((edge) => (
           <PostPreview key={edge.node.frontmatter.path} post={edge.node} />
         ))
       ) : (

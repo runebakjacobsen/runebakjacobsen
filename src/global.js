@@ -3,16 +3,17 @@ import { normalize } from "polished"
 import { above } from "./utilities/breakpoints"
 import { dom } from "@fortawesome/fontawesome-svg-core"
 import greenDustAndScracthes from "./images/greenDustAndScratches.png"
+import Manrope from "./fonts/Manrope[wght].ttf"
 
 const GlobalStyle = createGlobalStyle`
     ${normalize()}
-    
-    @import url('https://rsms.me/inter/inter.css');
-  
-    @supports (font-variation-settings: normal) {
-      body { font-family: 'Inter var', sans-serif; }
+    @font-face {
+        font-family: "Manrope";
+        src: url(${Manrope}) format("truetype-variations");
+        font-weight: 1 999; 
     }
 
+  
     ${dom.css()}
 
     html {
@@ -29,9 +30,9 @@ const GlobalStyle = createGlobalStyle`
         margin: 0;
         font-weight: 400;
         height:100%;
-        line-height: 1.65;
-        color: #1a202c;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+        line-height: 1.55;
+        color: #111827;
+        font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
           "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
           sans-serif;
         -webkit-font-smoothing: antialiased;
@@ -39,7 +40,7 @@ const GlobalStyle = createGlobalStyle`
         background-image: url(${greenDustAndScracthes});
     }
     button, input, optgroup, select, textarea {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+        font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
           "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
           sans-serif;
     }
@@ -53,24 +54,24 @@ const GlobalStyle = createGlobalStyle`
     p {margin-bottom: 1.15rem;}
 
     h1, h2, h3, h4, h5 {
-        margin: 2.75rem 0 1.05rem;  
-        line-height: 1.15;
-        font-weight: 900;
+        padding: 1rem 0;  
+        margin:0;
+        line-height: 1.25;
         letter-spacing: -1px;
     }
 
     h1 {
-    margin-top: 0;
-    font-size: 3.052em;
+        margin-top: 0;
+        font-size: 3rem;
     }
 
-    h2 {font-size: 2.441em;}
+    h2 {font-size: 2.5rem;}
 
-    h3 {font-size: 1.953em;}
+    h3 {font-size: 2rem;}
 
-    h4 {font-size: 1.563em;}
+    h4 {font-size: 1.5rem;}
 
-    h5 {font-size: 1.25em;}
+    h5 {font-size: 1.25rem;}
 
     h1:first-child, 
     h2:first-child, 
@@ -118,12 +119,10 @@ const GlobalStyle = createGlobalStyle`
             width: 860px;
         `}
     }
-    section {
-        margin-bottom: 1.15rem;
-    }
 
     main {
         width: 100%;
+        padding: 2rem 0;
     }
 
 `

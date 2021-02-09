@@ -1,12 +1,11 @@
+import { graphql } from "gatsby"
 import React from "react"
+import { GreyBackground } from "../components/grey-background"
 import Layout from "../components/layout"
+import MailinglistSubscribeForm from "../components/mailinglist-subscribe-form"
+import PostPreview from "../components/post-preview"
 import SEO from "../components/seo"
 import Welcome from "../components/welcome"
-import PostPreview from "../components/post-preview"
-import { graphql } from "gatsby"
-import { Highlight } from "../components/highlight"
-import { GreyBackground } from "../components/grey-background"
-import MailinglistSubscribeForm from "../components/mailinglist-subscribe-form"
 
 export const query = graphql`
   query IndexQuery {
@@ -34,19 +33,25 @@ const IndexPage = ({ data }) => (
     <SEO title="Home" />
     <Welcome />
     {data.allMdx.edges.length > 0 && (
-      <GreyBackground>
+      <GreyBackground
+        css={`
+          padding-bottom: 4rem;
+        `}
+      >
         <section>
-          <h2>
-            <Highlight>Recent Posts.</Highlight>
-          </h2>
+          <h2>Recent Posts</h2>
 
-          {data.allMdx.edges.map(edge => (
+          {data.allMdx.edges.map((edge) => (
             <PostPreview key={edge.node.frontmatter.path} post={edge.node} />
           ))}
         </section>
       </GreyBackground>
     )}
-    <section>
+    <section
+      css={`
+        padding: 4rem 0;
+      `}
+    >
       <MailinglistSubscribeForm />
     </section>
   </Layout>

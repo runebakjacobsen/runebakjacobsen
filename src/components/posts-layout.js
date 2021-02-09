@@ -3,7 +3,6 @@ import Layout from "./layout"
 import PropTypes from "prop-types"
 import { MDXProvider } from "@mdx-js/react"
 import CodeBlock from "../components/code-block"
-import { Highlight } from "./highlight"
 import SEO from "./seo"
 
 const components = {
@@ -28,11 +27,9 @@ const PostsLayout = ({ pageContext, children }) => {
         />
         <section>
           <article>
-            <h1>
-              <Highlight>{pageContext.frontmatter.title}</Highlight>
-            </h1>
+            <h1>{pageContext.frontmatter.title}</h1>
             <p>
-              <time datetime={pageContext.frontmatter.date}></time>
+              <time dateTime={pageContext.frontmatter.date}></time>
               {dateObject.toLocaleDateString("en-US", options)}
             </p>
             {children}
