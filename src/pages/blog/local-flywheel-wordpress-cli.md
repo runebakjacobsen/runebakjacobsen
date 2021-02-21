@@ -8,10 +8,8 @@ metadesc: "WIP "
 ---
 I have a few clients that use wordpress, which means that i need to work on local copies of wordpress once in a while.
 
-i Think have tried tride every option now and they either are to slow, cant handle multiple sites or refugiers to Munch  setup. Except local. with no comprimises this is the Best option out there. 
+i think have tried every option out there.  Either they are too slow, can't handle multiple sites or requires to much setup. Except Local. With no compromises this is the best option out there. 
 
-However one thing i have been messing forever is the ability to start a site using ny terminal. 
-
-
+However one thing i have been messing forever is the ability to start a site using my terminal. 
 
 Ngrok port problem
